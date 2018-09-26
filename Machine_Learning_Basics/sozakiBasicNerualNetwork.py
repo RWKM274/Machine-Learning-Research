@@ -66,7 +66,7 @@ class NeuralNetwork():
 		print (self.layer1.synaptic_weights)
 		print ('Layer 2 (1 neruon, with 4 inputs):')
 		print (self.layer2.synaptic_weights)
-
+    
 """ steping: if input hits our threshold (0.5), then it fires an output,
 	otherwise it does not do anything
 """
@@ -76,7 +76,6 @@ def step(num):
 	else:
 		num = 0
 	return num
-
 
 """ Main: creates a random seed and 
 """
