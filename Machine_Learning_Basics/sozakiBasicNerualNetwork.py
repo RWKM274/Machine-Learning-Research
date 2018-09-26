@@ -66,17 +66,16 @@ class NeuralNetwork():
 		print (self.layer1.synaptic_weights)
 		print ('Layer 2 (1 neruon, with 4 inputs):')
 		print (self.layer2.synaptic_weights)
-
-	""" steping: if input hits our threshold (0.5), then it fires an output,
-		otherwise it does not do anything
-	"""
-	def step(input):
-		if(input >= 0.5):
-			input = 1
-		else:
-			input = 0
-		return input
-
+    
+""" steping: if input hits our threshold (0.5), then it fires an output,
+	otherwise it does not do anything
+"""
+def step(num):
+	if(num >= 0.5):
+		num = 1
+	else:
+		num = 0
+	return num
 
 """ Main: creates a random seed and 
 """
@@ -111,7 +110,7 @@ if __name__ == "__main__":
 	neuralNetwork.print_weights()
 
 	# Stage 3: Test the new neural network
-	print ('Stage 3: Consider a new situation [1, 1, 0] = ?')
+	print ('Stage 3: Consider a new situation [1, 1, 0] = ? (should be 0)')
 	hidden_state, output = neuralNetwork.think(np.array([1, 1, 0]))
-	reluOutput = neuralNetwork.relu(output)
-	print (output)
+	stepOutput = step(output[0])
+	print ('The Neural Networks answer is: ' + str(stepOutput))
