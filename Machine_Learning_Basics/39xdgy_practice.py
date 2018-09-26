@@ -30,7 +30,18 @@ class NeuralNetwork():
     '''
     def __sigmoid_derivative(self, x):
         return x * (1 - x)
-
+    
+    # step function that would round to 0 or 1 from a flag which is 0.5
+    '''
+    input: one float
+    output: one integer
+    '''
+    def __step_function(self, x):
+        out = 0
+        if(x[0] >= 0.5):
+            out = 1
+        return out
+    
     # actually training the network, would update the weight inside the layers
     '''
     input: three things, training inputs array, training output array, the e_poch: one int that shows how many times the set would be trained
@@ -39,7 +50,7 @@ class NeuralNetwork():
     def train(self, training_set_inputs, training_set_outputs, e_poch):
         for i in range(e_poch):
             
-            output_from_layer1, output_from_layer2 = self.think(training_set_inputs)
+            output_from_layer1, output_from_layer2, integer_out = self.think(training_set_inputs)
 
             layer2_error = training_set_outputs - output_from_layer2
             layer2_delta = layer2_error * self.__sigmoid_derivative(output_from_layer2)
@@ -57,12 +68,13 @@ class NeuralNetwork():
     # actually try to predect what is the answer
     '''
     input: the input array 
-    output: two output layers, and the second one is the answer
+    output: three output, two of them are the layers, and the third one is the answer that output from the step function
     '''
     def think(self, inputs):
         output_from_layer1 = self.__sigmoid(np.dot(inputs, self.layer1.weight))
         output_from_layer2 = self.__sigmoid(np.dot(output_from_layer1, self.layer2.weight))
-        return output_from_layer1, output_from_layer2
+        integer_out = self.__step_function(output_from_layer2)
+        return output_from_layer1, output_from_layer2, integer_out
 
     # print function that would print out the weight
     '''
@@ -105,8 +117,8 @@ if __name__ == "__main__":
 
     # think, and print the test case which is 1, 1, 0 and the output of it
     print("Test to see if the model are good enough by inputing [1, 1, 0]")
-    hidden_state, output = network.think(np.array([1, 1, 0]))
-    print(output)
+    hidden_state, org_out, integer_out = network.think(np.array([1, 1, 0]))
+    print(integer_out)
 
     # infinit loop for testing, free input and to check if the output is correct or not. 
     while(1 == 1):
@@ -118,5 +130,5 @@ if __name__ == "__main__":
         if(a == b and b == c and c == 6):
             break
 
-        hidden_state, output = network.think(np.array([a, b, c]))
-        print(output)
+        hidden_state, org_out, final_out = network.think(np.array([a, b, c]))
+        print(final_out)
