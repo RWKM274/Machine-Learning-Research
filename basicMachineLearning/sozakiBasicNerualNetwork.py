@@ -1,32 +1,25 @@
 import numpy as np
-
-""" Takes in the number of neurons and the number of inputs you would like and build a layer for you.
-	Each layer will have a input from the previous layer and its neurons and its own neurons
-"""
 class NeuronLayer():
     def __init__(self, numberOfNeurons, numberOfInputsPerNeuron):
         self.synaptic_weights = 2 * np.random.random((numberOfInputsPerNeuron, numberOfNeurons)) - 1
 
 
-# Class that initializes with two layers that are the NeuronLayer class
 class NeuralNetwork():
 	def __init__(self, layer1, layer2):
 		self.layer1 = layer1
 		self.layer2 = layer2
 
 
-	# takes in a number and normalizes the number between 0 and 1
+	# normalise input between 0 and 1
 	def __sigmoid(self, x):
 		return 1 / (1 + np.exp(-x))
 
 
-	# Gives the amount of adjustment we need to give to the weights
+	# Indicates how confident we are about the existing weight
 	def __sigmoid_derivative(self, x):
 		return x * (1 - x)
 
-	""" We are training the neural network, by taking in the training set, then expected output set,
-		and how many times we want the nerual network to iterate through the training (e)
-	"""
+	# We training the neural network
 	def train(self, trainingSetInputs, trainingSetOutputs, numberOfTrainingIterations):
 		for iteration in range(numberOfTrainingIterations):
 
@@ -64,11 +57,8 @@ class NeuralNetwork():
 		print (' 	Layer 2 (1 neruon, with 4 inputs):')
 		print (self.layer2.synaptic_weights)
 
-	""" steping: if input hits our threshold (0.5), then it fires an output,
-		otherwise it does not do anything
-
-	"""
-	def step(input):
+	# Relu
+	def relu(input):
 		if(input >= 0.5):
 			input = 1
 		else:
