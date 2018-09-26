@@ -1,6 +1,7 @@
 import numpy as np
 
-""" Takes in the number of neurons and the number of inputs
+""" This neural network will train and predict how to do nand functions
+	Takes in the number of neurons and the number of inputs
 	you would like and build a layer for you.
 	Each layer will have a input from the previous layer and
 	its neurons and its own neurons
@@ -66,7 +67,7 @@ class NeuralNetwork():
 		print (self.layer1.synaptic_weights)
 		print ('Layer 2 (1 neruon, with 4 inputs):')
 		print (self.layer2.synaptic_weights)
-    
+
 """ steping: if input hits our threshold (0.5), then it fires an output,
 	otherwise it does not do anything
 """
@@ -76,6 +77,7 @@ def step(num):
 	else:
 		num = 0
 	return num
+
 
 """ Main: creates a random seed and 
 """
@@ -100,7 +102,7 @@ if __name__ == "__main__":
 
 	# Training set: 7 examples, each with 3 inputs and 1 output
 	trainingSetIputs = np.array([[0, 0, 1], [0, 1, 1], [1, 0, 1], [0, 1, 0], [1, 0, 0], [1, 1, 1], [0, 0, 0]])
-	trainingSetOutputs = np.array([[0, 1, 1, 1, 1, 0, 0]]).T
+	trainingSetOutputs = np.array([[1, 1, 1, 1, 1, 0, 1]]).T
 
 	# Train neural network with the training set, doing that 60,000 times
 	neuralNetwork.train(trainingSetIputs, trainingSetOutputs, 60000)
@@ -110,7 +112,26 @@ if __name__ == "__main__":
 	neuralNetwork.print_weights()
 
 	# Stage 3: Test the new neural network
-	print ('Stage 3: Consider a new situation [1, 1, 0] = ? (should be 0)')
+	print ('Stage 3: Consider a new situation [1, 1, 0] = ? (should be 1)')
 	hidden_state, output = neuralNetwork.think(np.array([1, 1, 0]))
 	stepOutput = step(output[0])
+	print ('The Neural Networks answer is: ' + str(stepOutput))
+
+	# Stage 4: Test given a user
+	answer = True
+	while(answer):
+		try:
+			first = int(input('Give me the first binary number: '))
+			second = int(input('Give me the second binary number: '))
+			third = int(input('Give me the third binary number: '))
+			if ((first == 0 or first == 1) and (second == 0 or second == 1) and (third == 0 or third == 1)):
+				hidden_state, output = neuralNetwork.think(np.array([first, second, third]))
+				stepOutput = step(output[0])
+				answer = False
+			else:
+				print('One of the inputs was incorrect. please try again.')
+		except (KeyboardInterrupt, SystemExit):
+			print('Something went wrong. Please try again')
+
+
 	print ('The Neural Networks answer is: ' + str(stepOutput))
