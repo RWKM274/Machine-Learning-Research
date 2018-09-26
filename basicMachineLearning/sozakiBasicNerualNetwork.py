@@ -95,7 +95,7 @@ if __name__ == "__main__":
 	neuralNetwork = NeuralNetwork(layer1, layer2)
 
 	# prints all of the stages for easy read
-	# prints the first stage, which is the random weighting
+	# Stage 1: Prints all the randomizes weights
 	print ('Stage 1: Randomizing synaptic weights: ')
 	neuralNetwork.print_weights()
 
