@@ -29,10 +29,11 @@ class NeuralNet():
 
 	def accuracy(self, testInputs, testOutputs): 
 		scores = self.network.evaluate(testInputs,testOutputs)
-		print('Testing with the test dataset of %d images.' % (testInputs))
+		print('Testing with the test dataset of %d images.' % (len(testInputs)))
 		print('-'*50)
 		print('Testing Dataset Accuracy - %s : %.2f%%' % (self.network.metrics_names[1], scores[1]*100))
 		print('-'*50)
+
 def format_outputs(traOutputs):
 	arr = np.empty(shape=[0,10])
 	for inp in traOutputs: 
