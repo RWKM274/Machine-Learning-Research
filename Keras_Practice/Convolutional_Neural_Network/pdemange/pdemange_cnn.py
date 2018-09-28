@@ -31,13 +31,13 @@ def formatData():
 	testDataGen = ImageDataGenerator(rescale=1./255)
 
 	trainGenerator = trainDataGen.flow_from_directory(
-		'training',
+		'./training',
 		target_size=(150,150),
 		batch_size=16, 
 		class_mode='binary')
 
 	testGenerator = testDataGen.flow_from_directory(
-		'testing',
+		'./testing',
 		target_size=(150,150),
 		batch_size=16,
 		class_mode='binary')
