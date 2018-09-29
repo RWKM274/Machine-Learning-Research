@@ -1,8 +1,10 @@
-from keras.preprocessing.image import ImageDataGenerator, load_img
+from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
 from keras.models import Sequential
+from keras.preprocessing import image
 from keras.layers import Conv2D, MaxPooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras import backend as K
+import os
 
 """ code based from a Keras Blog
 	(https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html)
@@ -23,7 +25,7 @@ test_dir = 'fruit_data/Test'
 
 train_sample = 2000
 test_sample = 800
-epochs = 2
+epochs = 20
 batch_size = 16
 classes = 3
 
@@ -101,8 +103,30 @@ trial_gen = trial_augment.flow_from_directory(
                 class_mode='categorical')
 
 # evaluating using my own dataset
-trial_result = neural_network.predict_generator(trial_gen, verbose=1)
-print(trial_result)
+# trial_result = neural_network.predict_generator(trial_gen, verbose=1)
+
+
+#for files in os.listdir('./test_data'):
+#	test_img = image.load_img('test_data/Banana/banana-test.jpg', target_size=(img_width, img_height))
+#	x = image.img_to_array(test_img)
+#	inputx = x.reshape([-1, img_width, img_height, 3])
+#	trailx = neural_network.predict(inputx, verbose=1)
+#	print(trailx)
+
+test_img = image.load_img('test_data/banana-test.jpg', target_size=(img_width, img_height))
+
+x = image.img_to_array(test_img)
+inputpy = x.reshape([-1, img_width, img_height, 3])
+
+test2 = image.load_img('test_data/pear.jpg', target_size=(img_width, img_height))
+
+n = image.img_to_array(test2)
+input2 = n.reshape([-1, img_width, img_height, 3])
+
+trial2 = neural_network.predict(input2, verbose=1)
+trial_result = neural_network.predict(inputpy, verbose=1)
+print('banana: ' + trial_result)
+print('pear: ' + trial2)
 
 # saving our trained neural network
-model.save_weights('first_try.h5')
+# neural_network.save_weights('first_try.h5')
