@@ -113,20 +113,22 @@ trial_gen = trial_augment.flow_from_directory(
 #	trailx = neural_network.predict(inputx, verbose=1)
 #	print(trailx)
 
-test_img = image.load_img('test_data/banana-test.jpg', target_size=(img_width, img_height))
+test_img = image.load_img('test_data/banana_original.jpg', target_size=(img_width, img_height))
 
 x = image.img_to_array(test_img)
 inputpy = x.reshape([-1, img_width, img_height, 3])
 
-test2 = image.load_img('test_data/pear.jpg', target_size=(img_width, img_height))
+test2 = image.load_img('test_data/original_pear.jpg', target_size=(img_width, img_height))
 
 n = image.img_to_array(test2)
 input2 = n.reshape([-1, img_width, img_height, 3])
 
 trial2 = neural_network.predict(input2, verbose=1)
 trial_result = neural_network.predict(inputpy, verbose=1)
-print('banana: ' + trial_result)
-print('pear: ' + trial2)
-
+# print('banana: ' + trial_result)
+# print('pear: ' + trial2)
+print(trial_result)
+print(trial2)
+print(type(trial_result))
 # saving our trained neural network
 # neural_network.save_weights('first_try.h5')
