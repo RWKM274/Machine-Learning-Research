@@ -14,7 +14,7 @@ import os
 
 """Citation for database:
 	Folder [test-multiple_fruits](test-multiple_fruits) contains images with multiple fruits. Some of them are partially covered by other fruits. Also, they were captured in different lighting conditions compared to the fruits from Training and Test folder. This is an excelent test for real-world detection.
-	"""
+"""
 
 # dimensions of our images
 img_width, img_height = 150, 150
@@ -119,14 +119,21 @@ def testing_neural_network(neural_network):
 	if(Debug):
 		print(str(num_total_files) + ' total files')
 		print(str(num_correct) + ' correct ones')
+
+# # Creating and Traing our Convolutional Neural Network
+
 # # Creating the model
 # neural_network = create_model()
 
-# # Training the Neural Network
+# # Returns the modification of the training set
 # train_generator, test_generator = training_set()
+
+
 
 # loading an existing Neural Network model
 neural_network = load_model('neural_network.h5')
+
+
 
 """ this will check to see if the Neural Network with the Test directory provided
 	with the dataset. It will display the accuacy of the Neural Network
@@ -134,16 +141,37 @@ neural_network = load_model('neural_network.h5')
 testing_neural_network(neural_network)
 
 
-# testing the neural network with customized images
-for root, dirs, files in os.walk('./test_data'):
-	for pics in files:
-		file_name = 'test_data/' + pics
-		test_img = image.load_img(file_name, target_size=(img_width, img_height))
-		x = image.img_to_array(test_img)
-		inputx = x.reshape([-1, img_width, img_height, 3])
-		trailx = neural_network.predict(inputx, verbose=1)
-		print(pics)
-		print(trailx)
+# # testing the neural network with customized images
+# list_of_options = ['apple', 'banana', 'pear']
+# num_total_files = 0
+# num_correct = 0
+# for root, dirs, files in os.walk('./test_data'):
+# 	for pics in files:
+# 		num_total_files += 1
+# 		file_name = 'test_data/' + pics
+# 		test_img = image.load_img(file_name, target_size=(img_width, img_height))
+# 		x = image.img_to_array(test_img)
+# 		inputx = x.reshape([-1, img_width, img_height, 3])
+# 		trailx = neural_network.predict(inputx, verbose=1)
+# 		print(pics)
+# 		# print(pics.split('_'))
+# 		# print(trailx)
+
+# 		""" this will patch the array of words and associates
+# 			it with the array returned from the CNN
+# 		"""
+# 		word_of_pic = pics.split('_')[0]
+# 		location_of_word_in_array = list_of_options.index(word_of_pic)
+# 		if(trailx[0][location_of_word_in_array] == 1):
+# 			num_correct += 1
+# 			print('correct')
+# 		else:
+# 			print('incorrect')
+# 		# if(pics.split('_')[0] in list_of_options):
+# 		# 	print('correct')
+# print(num_correct)
+# print(str(num_total_files) + ' total')
+# print('Accuacy: ' + str(num_correct/num_total_files * 100) + '%')
 
 
 
