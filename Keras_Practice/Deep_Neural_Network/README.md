@@ -16,4 +16,4 @@ from keras.datasets import cifar10
 
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 ```
-Ozaki is using the dataset from [Keras's datasets](https://keras.io/datasets/#imdb-movie-reviews-sentiment-classification)
+Ozaki has used a dataset from [Keras's datasets](https://keras.io/datasets/#imdb-movie-reviews-sentiment-classification)
