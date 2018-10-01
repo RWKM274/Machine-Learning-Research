@@ -131,17 +131,21 @@ neural_network = load_model('neural_network.h5')
 """ this will check to see if the Neural Network with the Test directory provided
 	with the dataset. It will display the accuacy of the Neural Network
 """
-# testing_neural_network(neural_network)
+testing_neural_network(neural_network)
 
 
-# # testing the neural network with customized images
-# for root, dirs, files in os.walk('./test_data'):
-# 	print(files)
-# 	file_name = 'test_data/' + files
-# 	test_img = image.load_img(file_name, target_size=(img_width, img_height))
-# 	x = image.img_to_array(test_img)
-# 	inputx = x.reshape([-1, img_width, img_height, 3])
-# 	trailx = neural_network.predict(inputx, verbose=1)
+# testing the neural network with customized images
+for root, dirs, files in os.walk('./test_data'):
+	for pics in files:
+		file_name = 'test_data/' + pics
+		test_img = image.load_img(file_name, target_size=(img_width, img_height))
+		x = image.img_to_array(test_img)
+		inputx = x.reshape([-1, img_width, img_height, 3])
+		trailx = neural_network.predict(inputx, verbose=1)
+		print(pics)
+		print(trailx)
+
+
 
 
 # # training our network and then testing our neural network
