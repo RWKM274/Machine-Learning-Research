@@ -1,5 +1,5 @@
 from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.preprocessing import image
 from keras.layers import Conv2D, MaxPooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
@@ -31,6 +31,9 @@ classes = 3
 
 # formating shape in this order because we are using tenserflow
 input_shape = (img_width, img_height, 3)
+
+# for debugging purposes
+Debug = False
 
 def create_model():
 	neural_network = Sequential()
@@ -81,54 +84,111 @@ def training_set():
 		class_mode='categorical')
 	return train_generator, test_generator
 
-neural_network = create_model()
-train_generator, test_generator = training_set()
+def print_accuracy(num_correct, num_total_files):
+	print('Accuacy: ' + str(num_correct/num_total_files * 100) + '%')
 
-# training our network and then testing our neural network
-neural_network.fit_generator(
-	train_generator,
-	steps_per_epoch=train_sample // batch_size,
-	epochs=epochs,
-#	validation_data=test_generator,
-#	validation_steps=test_sample // batch_size,
-	verbose=2)
+def testing_neural_network(neural_network):
+	array_of_items = ['Apple Braeburn', 'Banana', 'Pear']
+	file_spot = 0
+	num_total_files = 0
+	num_correct = 0
+	for dir_name in array_of_items:
+		for root, dirs, files in os.walk('./fruit_data/Test/' + dir_name):
+			num_total_files += len(files)
+			if(Debug):
+				print('-'*80)
+				print(len(files))
+				print(dir_name)
+				print('-'*80)
+			for pics in files:
+				file_name = 'fruit_data/Test/' + dir_name + '/' + pics
+				test_img = image.load_img(file_name, target_size=(img_width, img_height))
+				x = image.img_to_array(test_img)
+				inputx = x.reshape([-1, img_width, img_height, 3])
+				trailx = neural_network.predict(inputx, verbose=1)
+				if(Debug):
+					print('*'*80)
+					print(str(trailx[0]) + ' is the array')
+					print('*'*80)
+				if(trailx[0][file_spot] == 1):
+					num_correct += 1
 
-# how to modify image
-trial_augment = ImageDataGenerator(rescale=1. / 255)
-# creating a manual test
-trial_gen = trial_augment.flow_from_directory(
-                'test_data',
-                target_size=(img_width, img_height),
-                batch_size=batch_size,
-                class_mode='categorical')
+		# to check the array location
+		file_spot += 1
+	print_accuracy(num_correct, num_total_files)
+	if(Debug):
+		print(str(num_total_files) + ' total files')
+		print(str(num_correct) + ' correct ones')
+# # Creating the model
+# neural_network = create_model()
+
+# # Training the Neural Network
+# train_generator, test_generator = training_set()
+
+# loading an existing Neural Network model
+neural_network = load_model('neural_network.h5')
+
+""" this will check to see if the Neural Network with the Test directory provided
+	with the dataset. It will display the accuacy of the Neural Network
+"""
+# testing_neural_network(neural_network)
+
+
+# # testing the neural network with customized images
+# for root, dirs, files in os.walk('./test_data'):
+# 	print(files)
+# 	file_name = 'test_data/' + files
+# 	test_img = image.load_img(file_name, target_size=(img_width, img_height))
+# 	x = image.img_to_array(test_img)
+# 	inputx = x.reshape([-1, img_width, img_height, 3])
+# 	trailx = neural_network.predict(inputx, verbose=1)
+
+
+# # training our network and then testing our neural network
+# neural_network.fit_generator(
+# 	train_generator,
+# 	steps_per_epoch=train_sample // batch_size,
+# 	epochs=epochs,
+# #	validation_data=test_generator,
+# #	validation_steps=test_sample // batch_size,
+# 	verbose=2)
+
+# # how to modify image
+# trial_augment = ImageDataGenerator(rescale=1. / 255)
+# # creating a manual test
+# trial_gen = trial_augment.flow_from_directory(
+#                 'test_data',
+#                 target_size=(img_width, img_height),
+#                 batch_size=batch_size,
+#                 class_mode='categorical')
 
 # evaluating using my own dataset
 # trial_result = neural_network.predict_generator(trial_gen, verbose=1)
 
 
-#for files in os.listdir('./test_data'):
-#	test_img = image.load_img('test_data/Banana/banana-test.jpg', target_size=(img_width, img_height))
-#	x = image.img_to_array(test_img)
-#	inputx = x.reshape([-1, img_width, img_height, 3])
-#	trailx = neural_network.predict(inputx, verbose=1)
-#	print(trailx)
 
-test_img = image.load_img('test_data/banana_original.jpg', target_size=(img_width, img_height))
 
-x = image.img_to_array(test_img)
-inputpy = x.reshape([-1, img_width, img_height, 3])
 
-test2 = image.load_img('test_data/original_pear.jpg', target_size=(img_width, img_height))
 
-n = image.img_to_array(test2)
-input2 = n.reshape([-1, img_width, img_height, 3])
+# test_img = image.load_img('test_data/banana_original.jpg', target_size=(img_width, img_height))
 
-trial2 = neural_network.predict(input2, verbose=1)
-trial_result = neural_network.predict(inputpy, verbose=1)
-# print('banana: ' + trial_result)
-# print('pear: ' + trial2)
-print(trial_result)
-print(trial2)
-print(type(trial_result))
-# saving our trained neural network
-# neural_network.save_weights('first_try.h5')
+# x = image.img_to_array(test_img)
+# inputpy = x.reshape([-1, img_width, img_height, 3])
+
+# test2 = image.load_img('test_data/original_pear.jpg', target_size=(img_width, img_height))
+
+# n = image.img_to_array(test2)
+# input2 = n.reshape([-1, img_width, img_height, 3])
+
+# trial2 = neural_network.predict(input2, verbose=1)
+# trial_result = neural_network.predict(inputpy, verbose=1)
+# # print('banana: ' + trial_result)
+# # print('pear: ' + trial2)
+# print(trial_result)
+# print(trial2)
+# print(type(trial_result))
+
+
+
+# # saving our trained neural network
+# neural_network.save('neural_network.h5')
