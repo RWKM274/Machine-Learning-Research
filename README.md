@@ -9,5 +9,5 @@ This repository will serve as a collection of machine learning resources, as wel
 4. [Making a Convolutional Neural Network for Image Classification](https://github.com/pdemange/Machine-Learning-Research/tree/master/Keras_Practice/Convolutional_Neural_Network)
 
 ## Collaborators
-[Ozaki](https://github.com/STOzaki)
+[Ozaki](https://github.com/STOzaki)<br/>
 [39xdgy](https://github.com/39xdgy)
