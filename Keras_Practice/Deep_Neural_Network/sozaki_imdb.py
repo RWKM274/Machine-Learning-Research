@@ -41,7 +41,7 @@ neuralNetwork.add(Dense(1, activation='sigmoid'))
 optimizing_factor = optimizers.Adam(lr=.01)
 
 # Compile Model
-neuralNetwork.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+neuralNetwork.compile(loss='binary_crossentropy', optimizer=optimizing_factor, metrics=['accuracy'])
 
 # # Training the model (fitting)
 # neuralNetwork.fit(np.array(x_train, dtype=int), np.array(y_train, dtype=int), epochs=200, batch_size=32)
