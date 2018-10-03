@@ -13,3 +13,9 @@ I have trained the neural network using less data to keep the time to train the 
 - You need to have the Keras package for Python3 already installed before starting this program.
 - Go into the script and at the top there will be booleans, which you will need to change depending on whether you want to create your create a new neural network or use the default network.
 - **Currently**, the setting is going to run the current neural network if it exists.
+
+## Find pictures from Google
+Run `pip3 install google_images_download` if you have pip3.
+Then run googleimagesdownload -k "name of the images you want to seach"
+
+**for more information** please visit creator's [git repo](https://github.com/hardikvasa/google-images-download)
