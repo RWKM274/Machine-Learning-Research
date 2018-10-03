@@ -24,3 +24,7 @@ For example,
 ## Current Status
 Loss: 1.015977989543568
 Accuracy: ~88%
+
+## Dataset
+You need zip before unziping in linux(`sudo apt-get install zip`). You will need to unzip both zip files before running the code.
+simply type: `unzip test_data.zip` and `unzip training_dataset.zip`
