@@ -11,3 +11,6 @@ This repository will serve as a collection of machine learning resources, as wel
 ## Collaborators
 * [Ozaki](https://github.com/STOzaki)<br/>
 * [39xdgy](https://github.com/39xdgy)
+
+## Downloading images from Google
+[hardikvasa](https://github.com/hardikvasa) has an amazing [git repository](https://github.com/hardikvasa/google-images-download) that allows you to download images from Google. Handy to scrap pictures for your neural network.
