@@ -20,15 +20,16 @@ import os
 img_width, img_height = 150, 150
 
 # locations of the data for training and testing
-train_dir = 'additional_testing'
+train_dir = 'training_dataset'
 test_dir = 'fruit_data/Test'
+evaluate_dir = 'test_data'
 
 # name of neural network model
 neural_network_name = 'neural_network.h5'
 
 train_sample = 2000
 test_sample = 800
-epochs = 4
+epochs = 5
 batch_size = 16
 classes = 3
 
@@ -39,7 +40,7 @@ input_shape = (img_width, img_height, 3)
 Debug = False
 
 # to train or not to train
-load_network = False
+load_network = True
 
 # Do you want to test your neural network using the dataset's test dir
 default_dataset_test = False
@@ -48,7 +49,7 @@ default_dataset_test = False
 custom_test = False
 
 # Use evaluate function
-evaluate_test = False
+evaluate_test = True
 
 """ creates a model using conv2D, an activation of relu, and a maxpooling and
 	there are three of thoses. After that it puts the 3 Dimentional array and
@@ -198,15 +199,15 @@ def evaluate_custom_images():
 					print('The neural network guessed incorrect')
 
 	if(Debug):
-		print(num_correct)
-	print(str(num_total_files) + ' total')
+		print(str(num_correct) + ' correct ones')
+		print(str(num_total_files) + ' total')
 	print('Accuracy: ' + str(num_correct/num_total_files * 100) + '%')
 
 
 def evaluate_use_evaluate_function():
 	test_augment = ImageDataGenerator(rescale=1. / 255)
 	testing_generator = test_augment.flow_from_directory(
-		test_dir,
+		evaluate_dir,
 		target_size=(img_width, img_height),
 		batch_size=batch_size,
 		class_mode='categorical')
