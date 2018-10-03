@@ -21,7 +21,6 @@ img_width, img_height = 150, 150
 
 # locations of the data for training and testing
 train_dir = 'training_dataset'
-test_dir = 'fruit_data/Test'
 evaluate_dir = 'test_data'
 
 # name of neural network model
@@ -92,9 +91,6 @@ def augment_training_set():
 	    zoom_range=0.2,
 		horizontal_flip=True)
 
-	# this will also modify the images for testing, but only scaling
-	test_augment = ImageDataGenerator(rescale=1. / 255)
-
 	""" modifies the images to a particular width and height
 		(target_size) within the train directory(train_dir).
 		And identifies each of the group based on their
@@ -104,16 +100,7 @@ def augment_training_set():
 		target_size=(img_width, img_height),
 		batch_size=batch_size,
 		class_mode='categorical')
-
-	""" modifies the images to a particular width and height(target_size)
-		within the test directory(dir). And classifies using the names of
-		the directory names inside the test diretory."""
-	test_generator = test_augment.flow_from_directory(
-		test_dir,
-		target_size=(img_width, img_height),
-		batch_size=batch_size,
-		class_mode='categorical')
-	return train_generator, test_generator
+	return train_generator
 
 def print_accuracy(num_correct, num_total_files):
 	print('Accuracy: ' + str(num_correct/num_total_files * 100) + '%')
@@ -153,13 +140,11 @@ def testing_neural_network(neural_network):
 
 
 # training our network and then testing our neural network
-def training_neural_network(neural_network, train_generator, test_generator):
+def training_neural_network(neural_network, train_generator):
         neural_network.fit_generator(
                 train_generator,
                 steps_per_epoch=train_sample // batch_size,
                 epochs=epochs,
-#               validation_data=test_generator,
-#               validation_steps=test_sample // batch_size,
                 verbose=2)
 
 		
@@ -224,11 +209,11 @@ if(load_network == False):
 
 # Returns the modification of the training set
 if(load_network == False):
-	train_generator, test_generator = augment_training_set()
+	train_generator = augment_training_set()
 
 # Trains the Neural Network
 if(load_network == False):
-	training_neural_network(neural_network, train_generator, test_generator)
+	training_neural_network(neural_network, train_generator)
 
 
 # loading an existing Neural Network model
