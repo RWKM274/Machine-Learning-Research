@@ -20,12 +20,16 @@ import os
 img_width, img_height = 150, 150
 
 # locations of the data for training and testing
-train_dir = 'fruit_data/Training'
+train_dir = 'training_dataset'
 test_dir = 'fruit_data/Test'
+evaluate_dir = 'test_data'
+
+# name of neural network model
+neural_network_name = 'neural_network.h5'
 
 train_sample = 2000
 test_sample = 800
-epochs = 4
+epochs = 5
 batch_size = 16
 classes = 3
 
@@ -35,6 +39,23 @@ input_shape = (img_width, img_height, 3)
 # for debugging purposes
 Debug = False
 
+# to train or not to train
+load_network = True
+
+# Do you want to test your neural network using the dataset's test dir
+default_dataset_test = False
+
+# Do you want to test using custom neural network
+custom_test = False
+
+# Use evaluate function
+evaluate_test = True
+
+""" creates a model using conv2D, an activation of relu, and a maxpooling and
+	there are three of thoses. After that it puts the 3 Dimentional array and
+	condenses it into a 1 Dimentional array. Using that, it will do a softmax
+	which is good for classification with three or more options. Then
+	we compile the model using binary crossentropy and rmsprop optimizer."""
 def create_model():
 	optimization_rate = optimizers.rmsprop(lr=0.1)
 	neural_network = Sequential()
@@ -63,22 +84,30 @@ def create_model():
 				  metrics=['accuracy'])
 	return neural_network
 
-def training_set():
+def augment_training_set():
 	# modifies images to keep the neural network from overfitting
 	train_augment = ImageDataGenerator(
 	    rescale=1. / 255,
 	    shear_range=0.2,
 	    zoom_range=0.2,
-	horizontal_flip=True)
+		horizontal_flip=True)
 
 	# this will also modify the images for testing, but only scaling
 	test_augment = ImageDataGenerator(rescale=1. / 255)
 
+	""" modifies the images to a particular width and height
+		(target_size) within the train directory(train_dir).
+		And identifies each of the group based on their
+		respective directory names."""
 	train_generator = train_augment.flow_from_directory(
 		train_dir,
 		target_size=(img_width, img_height),
 		batch_size=batch_size,
 		class_mode='categorical')
+
+	""" modifies the images to a particular width and height(target_size)
+		within the test directory(dir). And classifies using the names of
+		the directory names inside the test diretory."""
 	test_generator = test_augment.flow_from_directory(
 		test_dir,
 		target_size=(img_width, img_height),
@@ -87,15 +116,15 @@ def training_set():
 	return train_generator, test_generator
 
 def print_accuracy(num_correct, num_total_files):
-	print('Accuacy: ' + str(num_correct/num_total_files * 100) + '%')
+	print('Accuracy: ' + str(num_correct/num_total_files * 100) + '%')
 
 def testing_neural_network(neural_network):
-	array_of_items = ['Apple Braeburn', 'Banana', 'Pear']
+	array_of_items = ['Apple', 'Banana', 'Pear']
 	file_spot = 0
 	num_total_files = 0
 	num_correct = 0
 	for dir_name in array_of_items:
-		for root, dirs, files in os.walk('./fruit_data/Test/' + dir_name):
+		for root, dirs, files in os.walk('./' + test_dir + '/' + dir_name):
 			num_total_files += len(files)
 			if(Debug):
 				print('-'*80)
@@ -103,7 +132,7 @@ def testing_neural_network(neural_network):
 				print(dir_name)
 				print('-'*80)
 			for pics in files:
-				file_name = 'fruit_data/Test/' + dir_name + '/' + pics
+				file_name = test_dir + '/' + dir_name + '/' + pics
 				test_img = image.load_img(file_name, target_size=(img_width, img_height))
 				x = image.img_to_array(test_img)
 				inputx = x.reshape([-1, img_width, img_height, 3])
@@ -134,66 +163,97 @@ def training_neural_network(neural_network, train_generator, test_generator):
                 verbose=2)
 
 		
-# def evaluating():
-		
+def evaluate_custom_images():
+	 # testing the neural network with customized images
+	list_of_options = ['apple', 'banana', 'pear']
+	num_total_files = 0
+	num_correct = 0
+	for root, dirs, files in os.walk('./test_data'):
+		for pics in files:
+			num_total_files += 1
+			file_name = 'test_data/' + pics
+			test_img = image.load_img(file_name, target_size=(img_width, img_height))
+			x = image.img_to_array(test_img)
+			inputx = x.reshape([-1, img_width, img_height, 3])
+			result_neural_network = neural_network.predict(inputx, verbose=1)
+
+			if(Debug):
+				print('picture name: ' + pics)
+
+			""" grabs the fruit name from the name of the file. For
+				example, banana_2.jpg => banana"""
+
+			word_of_pic = pics.split('_')[0]
+			location_of_word_in_array = list_of_options.index(word_of_pic)
+
+			""" increments the amount of times the neural network
+				guessed correctly if it returns 1 for the correct
+				category. WARNING: if more than one category is
+				flaged, this code will not catch it."""
+			if(result_neural_network[0][location_of_word_in_array] == 1):
+				num_correct += 1
+				if(Debug):
+					print('The neural network guessed correctly')
+			else:
+				if(Debug):
+					print('The neural network guessed incorrect')
+
+	if(Debug):
+		print(str(num_correct) + ' correct ones')
+		print(str(num_total_files) + ' total')
+	print('Accuracy: ' + str(num_correct/num_total_files * 100) + '%')
+
+
+def evaluate_use_evaluate_function():
+	test_augment = ImageDataGenerator(rescale=1. / 255)
+	testing_generator = test_augment.flow_from_directory(
+		evaluate_dir,
+		target_size=(img_width, img_height),
+		batch_size=batch_size,
+		class_mode='categorical')
+	results = neural_network.evaluate_generator(testing_generator)
+	print('Loss: ' + str(results[0]) + '\n' + 'Accuracy: ' + str(results[1]*100) + '%')
 
 
 
 # Creating and Traing our Convolutional Neural Network
 
 # Creating the model
-# neural_network = create_model()
+if(load_network == False):
+	neural_network = create_model()
 
 # Returns the modification of the training set
-train_generator, test_generator = training_set()
+if(load_network == False):
+	train_generator, test_generator = augment_training_set()
 
 # Trains the Neural Network
-# training_neural_network(neural_network, train_generator, test_generator)
+if(load_network == False):
+	training_neural_network(neural_network, train_generator, test_generator)
 
 
-# # loading an existing Neural Network model
-neural_network = load_model('neural_network.h5')
+# loading an existing Neural Network model
+if(load_network):
+	try:
+		neural_network = load_model(neural_network_name)
+	except:
+		print('ERROR: could not load ' + neural_network_name)
+
 
 
 
 """ this will check to see if the Neural Network with the Test directory provided
-	with the dataset. It will display the accuacy of the Neural Network
+	with the dataset. It will display the Accuracy of the Neural Network
 """
-testing_neural_network(neural_network)
+if(default_dataset_test):
+	testing_neural_network(neural_network)
 
 
- # testing the neural network with customized images
-list_of_options = ['apple', 'banana', 'pear']
-num_total_files = 0
-num_correct = 0
-for root, dirs, files in os.walk('./test_data'):
-	for pics in files:
-		num_total_files += 1
-		file_name = 'test_data/' + pics
-		test_img = image.load_img(file_name, target_size=(img_width, img_height))
-		x = image.img_to_array(test_img)
-		inputx = x.reshape([-1, img_width, img_height, 3])
-		trailx = neural_network.predict(inputx, verbose=1)
-		print(pics)
-		# print(pics.split('_'))
-		# print(trailx)
+if(custom_test):
+	evaluate_custom_images()
 
-
-# 		""" this will patch the array of words and associates
-#			it with the array returned from the CNN
-#		"""
-		word_of_pic = pics.split('_')[0]
-		location_of_word_in_array = list_of_options.index(word_of_pic)
-		if(trailx[0][location_of_word_in_array] == 1):
-			num_correct += 1
-			print('correct')
-		else:
-			print('incorrect')
-		if(pics.split('_')[0] in list_of_options):
-			print('correct')
-print(num_correct)
-print(str(num_total_files) + ' total')
-print('Accuacy: ' + str(num_correct/num_total_files * 100) + '%')
+if(evaluate_test):
+	evaluate_use_evaluate_function()
+	
 
 
 # how to modify image
@@ -230,8 +290,9 @@ print('Accuacy: ' + str(num_correct/num_total_files * 100) + '%')
 # print(trial2)
 # print(type(trial_result))
 
-ending = neural_network.evaluate_generator(test_generator, verbose=1)
-print(ending)
+# ending = neural_network.evaluate_generator(test_generator, verbose=1)
+# print(ending)
 
 # saving our trained neural network
-# neural_network.save('neural_network.h5')
+if(load_network == False):
+	neural_network.save(neural_network_name)
