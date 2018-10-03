@@ -20,3 +20,7 @@ For example,
 `googleimagesdownload -k "a bunch of apples" -l 20` searches for 'a bunch of apples' and only downloads 20 images
 
 **for more information** please visit creator's [git repo](https://github.com/hardikvasa/google-images-download)
+
+## Current Status
+Loss: 0.894690448587591
+Accuracy: ~85%
