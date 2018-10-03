@@ -11,8 +11,7 @@ I have trained the neural network using less data to keep the time to train the 
 
 ## Running this script
 - You need to have the Keras package for Python3 already installed before starting this program.
-- Go into the script and at the top there will be booleans, which you will need to change depending on whether you want to create your create a new neural network or use the default network.
-- **Currently**, the setting is going to run the current neural network if it exists.
+- Go into sozaki_fruit_recongnition.py and near the top there will be boolean variables, which will change what the code does when you run it.
 
 ## Find pictures from Google
 Run `pip3 install google_images_download` if you have pip3.
