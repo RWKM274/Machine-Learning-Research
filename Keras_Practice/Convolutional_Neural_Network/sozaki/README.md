@@ -16,6 +16,8 @@ I have trained the neural network using less data to keep the time to train the 
 
 ## Find pictures from Google
 Run `pip3 install google_images_download` if you have pip3.
-Then run googleimagesdownload -k "name of the images you want to seach"
+Then run `googleimagesdownload -k "name of the images you want to seach" -l 20` (20 is the limit of images it downloads)
+For example,
+`googleimagesdownload -k "a bunch of apples" -l 20` searches for 'a bunch of apples' and only downloads 20 images
 
 **for more information** please visit creator's [git repo](https://github.com/hardikvasa/google-images-download)
