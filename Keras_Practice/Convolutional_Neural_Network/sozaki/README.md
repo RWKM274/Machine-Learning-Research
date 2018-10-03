@@ -22,5 +22,5 @@ For example,
 **for more information** please visit creator's [git repo](https://github.com/hardikvasa/google-images-download)
 
 ## Current Status
-Loss: 0.894690448587591
-Accuracy: ~85%
+Loss: 1.015977989543568
+Accuracy: ~88%
