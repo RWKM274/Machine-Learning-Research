@@ -7,7 +7,7 @@ This repository will serve as a collection of machine learning resources, as wel
 2. [Re-Making a Neural Network in Keras](https://github.com/pdemange/Machine-Learning-Research/tree/master/Keras_Machine_Learning_Basics)
 3. [Making a Custom Deep Neural Network in Keras](https://github.com/pdemange/Machine-Learning-Research/tree/master/Keras_Practice/Deep_Neural_Network)
 4. [Making a Convolutional Neural Network for Image Classification](https://github.com/pdemange/Machine-Learning-Research/tree/master/Keras_Practice/Convolutional_Neural_Network)
-
+5. [Making a Recurrent Neural Network for word processing](https://github.com/pdemange/Machine-Learning-Research/tree/master/Keras_Practice/Recurrent_Neural_Network)
 ## Collaborators
 * [Ozaki](https://github.com/STOzaki)<br/>
 * [39xdgy](https://github.com/39xdgy)
