@@ -14,3 +14,7 @@ This repository will serve as a collection of machine learning resources, as wel
 
 ## Downloading images from Google
 [hardikvasa](https://github.com/hardikvasa) has an amazing [git repository](https://github.com/hardikvasa/google-images-download) that allows you to download images from Google. Handy to scrap pictures for your neural network.
+
+## Issues
+If you get this error that looks something like this: `Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA keras` you need to do this to get rid of the warning `os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'`.<br/>
+[For more information visite this stackoverflow page](https://stackoverflow.com/questions/47068709/your-cpu-supports-instructions-that-this-tensorflow-binary-was-not-compiled-to-u)
