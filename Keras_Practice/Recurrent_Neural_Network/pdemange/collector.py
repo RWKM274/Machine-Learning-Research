@@ -121,13 +121,6 @@ class DataHandler:
 
 
 if __name__ == '__main__':
-    y = CaptionCollector()
-    caps = y.readAllCaptions('subtitles_0.en.vtt')
-    nCaps = y.formatCaptions(caps, {'\n':'','D:':'\nD:', 'A:':'\nA:','Arin:': '\nA:', 'Dan:':'\nD:', '(Arin)':'\nA:', '(Danny)':'\nD:'})
-    print(nCaps)
-    c = DataHandler(nCaps)
-    print(c.prepareData())
-    #y.downloadFromList('youtube_list.txt')
-    #y.downloadSubs('https://www.youtube.com/watch?v=xNnItWbMhL8', 'GG')
-
+    cap = CaptionCollector()
+    cap.downloadFromList('youtube_list.txt')
 
