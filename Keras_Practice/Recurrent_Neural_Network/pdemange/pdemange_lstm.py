@@ -1,5 +1,5 @@
 from keras.callbacks import LambdaCallback
-from keras.models import Sequential
+from keras.models import Sequential, model_from_json
 from keras.layers import Dense, Dropout
 from keras.layers import LSTM
 from keras.optimizers import RMSprop
@@ -61,6 +61,31 @@ x, y = prepareData(maxl, sentences, len(chars))
 
 model = buildModel(maxl, len(chars))
 
+def generateText():
+    start_index = random.randint(0, len(sentences) - maxl - 1)
+    seed = sentences[start_index: start_index + maxl]
+    original = seed
+    for diversity in [0.2,0.5,0.7,1.0,1.2]:
+        seed = original
+        print('-'*50)
+        print('Generating text with seed: "'+seed+'" with diversity of: '+str(diversity))
+        print('-'*50)
+        print()
+        for i in range(400):
+            x_pred = np.zeros((1, maxl, len(chars)))
+            for t, char in enumerate(seed):
+                x_pred[0, t, charIndices[char]] = 1.
+
+            preds = model.predict(x_pred, verbose=0)[0]
+            next_index = sample(preds, diversity)
+            next_char = indicesChar[next_index]
+
+            seed = seed[1:] + next_char
+
+            sys.stdout.write(next_char)
+            sys.stdout.flush()
+        print()
+
 def on_epoch_end(epoch, _):
     # Function invoked at end of each epoch. Prints generated text.
     if epoch+1 == 1 or (epoch+1) % 5 == 0:
@@ -93,5 +118,15 @@ def on_epoch_end(epoch, _):
                 sys.stdout.flush()
             print()
 
-model.fit(x,y,batch_size=512, epochs=50, verbose=1, callbacks=[LambdaCallback(on_epoch_end=on_epoch_end)])
-model.save('first_try.h5')
+'''
+jsonLoad = open('saved_model.json')
+modelRead = jsonLoad.read()
+jsonLoad.close()
+model = model_from_json(modelRead)
+model.load_weights('first_try.h5')
+generateText()
+'''
+model.fit(x,y,batch_size=1024, epochs=50, verbose=1, callbacks=[LambdaCallback(on_epoch_end=on_epoch_end)])
+with open('saved_model.json', 'w') as f:
+    f.write(model.to_json())
+model.save_weights('second_try.h5')
