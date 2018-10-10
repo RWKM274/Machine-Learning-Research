@@ -16,11 +16,11 @@ for files in os.listdir():
     if '.vtt' in files:
         caps += coll.readAllCaptions(files)
 nCaps = coll.formatCaptions(caps, {'\n':'','D:':'\nD:', 'A:':'\nA:','Arin:': '\nA:', 'Dan:':'\nD:', '(Arin)':'\nA:', '(Danny)':'\nD:',
-                                   'danny:':'\nD:', 'arin:':'\nA:'})
-sentences = ' '.join(nCaps).lower()
-chars = sorted(list(set(sentences)))
-charIndices = dict((c,i) for i, c in enumerate(chars))
-indicesChar = dict((i,c) for i, c in enumerate(chars))
+                                   'danny:':'\nD:', 'arin:':'\nA:', '[danny]':'\nD','[arin]':'\nA:', '[Danny]':'\nD','[Arin]':'\nA:','Danny':'\nD:'})
+sentences = ' '.join(nCaps).lower() # ['Hello', 'world'] --> 'hello world'
+chars = sorted(list(set(sentences))) # <-- get length of unique characters Ex. 30
+charIndices = dict((c,i) for i, c in enumerate(chars))# <-- {a:1,b:2}
+indicesChar = dict((i,c) for i, c in enumerate(chars))# <-- {1:a. 2:b}
 maxl = 40
 
 def sample(preds, temperature=1.0):
@@ -34,8 +34,8 @@ def sample(preds, temperature=1.0):
 
 def buildModel(maxLen, charLen):
     model = Sequential()
-    model.add(LSTM(128, return_sequences=True,input_shape=(maxLen, charLen)))
-    model.add(LSTM(64))
+    model.add(LSTM(128, input_shape=(maxLen, charLen))) # [[0..1], [0..0]] <-- one hot encode
+    #model.add(LSTM(64))
     model.add(Dense(charLen, activation='relu'))
     model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
     model.optimizer.lr=.01
@@ -93,5 +93,5 @@ def on_epoch_end(epoch, _):
                 sys.stdout.flush()
             print()
 
-model.fit(x,y,batch_size=128, epochs=300, verbose=1, callbacks=[LambdaCallback(on_epoch_end=on_epoch_end)])
+model.fit(x,y,batch_size=512, epochs=50, verbose=1, callbacks=[LambdaCallback(on_epoch_end=on_epoch_end)])
 model.save('first_try.h5')
