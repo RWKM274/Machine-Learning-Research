@@ -25,7 +25,7 @@ class AnimalClassifier:
     def prepareData(self, trD, teD, vD):
 
         testDatagen = ImageDataGenerator(rescale=.1/255)
-        trainDatagen = ImageDataGenerator(rescale=.1/255, horizontal_flip=True, zoom_range=0.2,rotation_range=40,width_shift_range=0.2,height_shift_range=0.2)
+        trainDatagen = ImageDataGenerator(rescale=.1/255)
         train = trainDatagen.flow_from_directory(
             trD,
             target_size=(224, 224),
@@ -51,7 +51,6 @@ class AnimalClassifier:
         vggModel = vgg16.VGG16()
         model = Sequential()
         for layer in vggModel.layers:
-            layer.trainable=False
             model.add(layer)
         model.layers.pop()
         #Creating the convolutional layer
@@ -66,14 +65,13 @@ class AnimalClassifier:
         model.add(MaxPooling2D(pool_size=(2,2)))
         model.add(Dropout(0.25))
         model.add(Flatten())  # this converts our 3D feature maps to 1D feature vectors
-        
-        
-        
         model.optimizer.lr = .001
         '''
+        for layer in model.layers:
+            layer.trainable=False
         model.add(Dense(1, activation='sigmoid'))
         model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-        model.optimizer.lr =.001
+        model.optimizer.lr =.0001
         return model
 
     def saveWeights(self, fileName):
