@@ -76,25 +76,24 @@ class directory_of_letters:
             self.int_to_char[i] = list[i]
             self.char_to_int[list[i]] = i
 
-def prepare_data(list, num_unique_letters, dic_of_letters, steps=3):
+def prepare_data(list, steps=3):
     x_raw = []
     y_raw = []
     for i in range(0, len(list) - max_len_of_sent, steps):
         x_raw.append(list[i:i + max_len_of_sent])
         y_raw.append(list[i + max_len_of_sent])
-    x_train = np.zeros((len(y_raw), max_len_of_sent, num_unique_letters), dtype=np.bool)
-    y_train = np.zeros((len(y_raw), num_unique_letters), dtype=np.bool)
+    x_train = np.zeros((len(y_raw), max_len_of_sent, number_of_unique_letters), dtype=np.bool)
+    y_train = np.zeros((len(y_raw), number_of_unique_letters), dtype=np.bool)
 
     # converting letters into array of 0 and 1 for the appropriate letter
     for t, sentence in enumerate(x_raw):
         for loc, letters in enumerate(sentence):
-            # print(t, loc, letters, dic_of_letters.char_to_int[letters])
-            x_train[t][loc][dic_of_letters.char_to_int[letters]] = 1
+            x_train[t][loc][dict_of_letters.char_to_int[letters]] = 1
 
     for t, sentence in enumerate(y_raw):
         for loc, letters in enumerate(sentence):
             # print(t, loc, letters, dict_of_letters.char_to_int[letters])
-            y_train[t][dic_of_letters.char_to_int[letters]] = 1
+            y_train[t][dict_of_letters.char_to_int[letters]] = 1
     return x_train, y_train
 
 
@@ -105,32 +104,30 @@ def convert_to_text_array(list, steps=3):
     return x_raw
 
 
-def convert_to_np_array(text_array):
+def convert_text_to_np_array(text_array):
     x_train = np.zeros((len(text_array), max_len_of_sent, number_of_unique_letters), dtype=np.bool)
     # converting letters into array of 0 and 1 for the appropriate letter
     for t, sentence in enumerate(x_raw):
         for loc, letters in enumerate(sentence):
-            # print(t, loc, letters, dic_of_letters.char_to_int[letters])
             x_train[t][loc][dict_of_letters.char_to_int[letters]] = 1
 
 
-def create_model(num_unique_letters):
+def create_model():
     model = Sequential()
-    model.add(LSTM(128, input_shape=(max_len_of_sent, num_unique_letters)))
-    model.add(Dense(num_unique_letters, activation='softmax'))
+    model.add(LSTM(128, input_shape=(max_len_of_sent, number_of_unique_letters)))
+    model.add(Dense(number_of_unique_letters, activation='relu'))
     model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
     model.optimizer.lr = 0.01
     return model
 
 
-def convert_text_to_array(raw_text, num_unique_letters, dic_of_letters):
-    zero_array = np.zeros((len(raw_text), max_len_of_sent, num_unique_letters), dtype=np.bool)
+def convert_text_to_array(raw_text):
+    zero_array = np.zeros((len(raw_text), max_len_of_sent, number_of_unique_letters), dtype=np.bool)
 
     # converting letters into array of 0 and 1 for the appropriate letter
     for t, sentence in enumerate(raw_text):
         for loc, letters in enumerate(sentence):
-            # print(t, loc, letters, dic_of_letters.char_to_int[letters])
-            zero_array[t][loc][dic_of_letters.char_to_int[letters]] = 1
+            zero_array[t][loc][dict_of_letters.char_to_int[letters]] = 1
     return zero_array
 
 
@@ -144,7 +141,7 @@ def on_epoch_end(epoch, logs):
 
         for i in range(length_of_text_to_generate):
             print('start: ' + test_text)
-            test_array = convert_text_to_array(test_text, number_of_unique_letters, dict_of_letters)
+            test_array = convert_text_to_array(test_text)
             array_answer = model.predict(test_array, verbose=0)[0]
             added_letter = dict_of_letters.int_to_char[np.argmax(array_answer)]
             # print(added_letter)
@@ -170,7 +167,7 @@ test_file.write(all_text)
 ordered_list = sorted(list(set(all_text)))
 dict_of_letters = directory_of_letters(ordered_list)
 number_of_unique_letters = len(set(all_text))
-x, y = prepare_data(all_text, number_of_unique_letters, dict_of_letters)
+x, y = prepare_data(all_text)
 
 x_raw = convert_to_text_array(all_text)
 
@@ -184,9 +181,9 @@ if __name__ == '__main__':
 
 
     # pass in the sentence and the number of unique letters
-    x, y = prepare_data(all_text, number_of_unique_letters, dict_of_letters)
+    x, y = prepare_data(all_text)
     # model = load_model('caption.h5')
-    model = create_model(number_of_unique_letters)
+    model = create_model()
     model.fit(x, y, batch_size=1024, epochs=epochs, verbose=1, callbacks=[LambdaCallback(on_epoch_end=on_epoch_end)])
     model.save('caption.h5')
 
