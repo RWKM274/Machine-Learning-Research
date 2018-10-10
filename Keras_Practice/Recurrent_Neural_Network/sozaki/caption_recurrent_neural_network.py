@@ -108,6 +108,7 @@ def prepare_data(list, steps=3):
 
     for t, sentence in enumerate(y_raw):
         for loc, letters in enumerate(sentence):
+            # print(t, loc, letters, dict_of_letters.char_to_int[letters])
             y_train[t][dict_of_letters.char_to_int[letters]] = 1
     return x_train, y_train
 
@@ -117,6 +118,7 @@ def convert_to_text_array(list, steps=3):
     for i in range(0, len(list) - max_len_of_sent, steps):
         x_raw.append(list[i:i + max_len_of_sent])
     return x_raw
+
 
 def create_model():
     model = Sequential()
@@ -184,6 +186,25 @@ if(vtt_creation_from_list_file or single_vtt_creation)
 
 	# create an array of all prompts (input) to use for testing the model
 	x_raw = convert_to_text_array(all_text)
+
+# I may need to clean up the data (maybe)
+captions_class = CaptionCollector()
+all_text = ''
+for file_name in os.listdir('.'):
+	if(file_name.endswith('en.vtt')):
+		caption = captions_class.readAllCaptions(file_name)
+		sent = str.join(' ', caption).lower()
+		all_text = all_text + sent
+
+test_file = open("all_text.txt", 'w')
+test_file.write(all_text)
+
+ordered_list = sorted(list(set(all_text)))
+dict_of_letters = directory_of_letters(ordered_list)
+number_of_unique_letters = len(set(all_text))
+x, y = prepare_data(all_text)
+
+x_raw = convert_to_text_array(all_text)
 
 
 if __name__ == '__main__':
