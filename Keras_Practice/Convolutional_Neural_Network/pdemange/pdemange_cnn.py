@@ -1,7 +1,7 @@
 import numpy as np
 import os
 from keras.models import Sequential
-from keras.layers import Dense, Conv2D, MaxPooling2D, Flatten, Dropout, Activation
+from keras.layers import Dense, Conv2D, GlobalAveragePooling2D, Flatten, Dropout, Activation
 from keras import optimizers
 from keras.preprocessing.image import ImageDataGenerator, img_to_array, array_to_img, load_img
 from keras.applications import vgg16
@@ -48,11 +48,11 @@ class AnimalClassifier:
         return train, test, valid
 
     def createModel(self):
-        vggModel = vgg16.VGG16()
+        vggModel = vgg16.VGG16(include_top=False, input_shape=(224,224,3))
         model = Sequential()
         for layer in vggModel.layers:
             model.add(layer)
-        model.layers.pop()
+        #model.layers.pop()
         #Creating the convolutional layer
         '''
         model = Sequential()
@@ -67,11 +67,14 @@ class AnimalClassifier:
         model.add(Flatten())  # this converts our 3D feature maps to 1D feature vectors
         model.optimizer.lr = .001
         '''
-        for layer in model.layers:
-            layer.trainable=False
+        for i in range(len(model.layers)):
+            model.layers[i].trainable = False
+        model.add(GlobalAveragePooling2D())
+        model.add(Dense(64, activation='relu'))
         model.add(Dense(1, activation='sigmoid'))
-        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+        model.compile(loss='binary_crossentropy', optimizer='sgd', metrics=['accuracy'])
         model.optimizer.lr =.0001
+        model.optimizer.momentum = 0.9
         return model
 
     def saveWeights(self, fileName):
@@ -82,7 +85,7 @@ class AnimalClassifier:
 
     def practice(self):
         #print(self.train)
-        self.network.fit_generator(self.train, steps_per_epoch=self.trainingNumber/self.batchSize, validation_data=self.validate, validation_steps=self.validationNumber/self.batchSize,epochs=5)
+        self.network.fit_generator(self.train, steps_per_epoch=self.trainingNumber/self.batchSize, validation_data=self.validate, validation_steps=self.validationNumber/self.batchSize,epochs=20)
 
     def evaluate(self):
         trainingScores = self.network.evaluate_generator(self.train, steps=self.trainingNumber/10)
@@ -96,7 +99,7 @@ class AnimalClassifier:
         return self.network.predict(final)
 
 if __name__ == '__main__':
-    net = AnimalClassifier('data/train','data/test','data/validate',10)
+    net = AnimalClassifier('data/train','data/test','data/validate',16)
     net.practice()
     #net.loadWeights('final2')
     net.evaluate()
