@@ -32,6 +32,9 @@ vtt_creation_from_list_file = False
 # write to file of the combined captions
 write_to_txt_file = False
 
+# create vtt for a single youtube caption
+single_vtt_creation = False
+
 # credit: pdemange. From his collector.py
 class CaptionCollector:
 
@@ -152,6 +155,8 @@ def on_epoch_end(epoch, logs):
             full_generated_text = full_generated_text + added_letter
         print(full_generated_text)
 
+# always initalize with caption class
+captions_class = CaptionCollector()
 
 if(vtt_creation_from_list_file):
 	# download captions from youtube based on a file of links
@@ -161,9 +166,7 @@ if(single_vtt_creation):
 	# download caption from a single youtube video
 	captions_class.downloadSubs("https://youtu.be/otwkRq_KnG0", "8-bitryan")
 
-if(vtt_creation_from_list_file or single_vtt_creation)
-	# I may need to clean up the data (maybe)
-	captions_class = CaptionCollector()
+if(vtt_creation_from_list_file or single_vtt_creation):
 	all_text = ''
 	for file_name in os.listdir('.'):
 		if(file_name.endswith('en.vtt')):
