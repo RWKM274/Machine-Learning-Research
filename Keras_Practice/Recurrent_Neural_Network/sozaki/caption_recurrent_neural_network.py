@@ -47,8 +47,8 @@ write_to_txt_file = False
 # create vtt for a single youtube caption
 single_vtt_creation = False
 
-# specify how many vtt files to create (-1 means create all vtt from the list_file)
-list_file_limitor = -1
+# specify how many vtt files to create (For example, 0 means it will not create any vtt files)
+list_file_limitor = 0
 
 
 # credit: pdemange. From his collector.py
@@ -96,8 +96,9 @@ class CaptionCollector:
             f.close()
 
         for i, url in enumerate(urls):
-            temp = subtitleFileName+'_'+str(i)
-            self.downloadSubs(url, temp)
+            if (list_file_limitor - 1) == -1 or i < list_file_limitor:
+                temp = subtitleFileName+'_'+str(i)
+                self.downloadSubs(url, temp)
 
 
 def prepare_data(list, steps=3):
