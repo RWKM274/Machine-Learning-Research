@@ -7,7 +7,7 @@ import random
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.callbacks import LambdaCallback
-from keras.models import Sequential, load_model, model_from_json
+from keras.models import Sequential, model_from_json
 
 max_len_of_sent = 40
 
@@ -34,6 +34,9 @@ write_to_txt_file = False
 
 # create vtt for a single youtube caption
 single_vtt_creation = False
+
+# specify how many vtt files to create (-1 means create all vtt from the list_file)
+list_file_limitor = -1
 
 # credit: pdemange. From his collector.py
 class CaptionCollector:
@@ -83,14 +86,6 @@ class CaptionCollector:
             temp = subtitleFileName+'_'+str(i)
             self.downloadSubs(url, temp)
 
-class directory_of_letters:
-
-    def __init__(self, list):
-        self.int_to_char = dict()
-        self.char_to_int = dict()
-        for i in range(len(list)):
-            self.int_to_char[i] = list[i]
-            self.char_to_int[list[i]] = i
 
 def prepare_data(list, steps=3):
     x_raw = []
@@ -104,11 +99,11 @@ def prepare_data(list, steps=3):
     # converting letters into array of 0 and 1 for the appropriate letter
     for t, sentence in enumerate(x_raw):
         for loc, letters in enumerate(sentence):
-            x_train[t][loc][dict_of_letters.char_to_int[letters]] = 1
+            x_train[t][loc][char_to_int[letters]] = 1
 
     for t, sentence in enumerate(y_raw):
         for loc, letters in enumerate(sentence):
-            y_train[t][dict_of_letters.char_to_int[letters]] = 1
+            y_train[t][char_to_int[letters]] = 1
     return x_train, y_train
 
 
@@ -133,7 +128,7 @@ def convert_text_to_array(raw_text):
 
     # converting letters into array of 0 and 1 for the appropriate letter
     for t, sentence in enumerate(raw_text):
-            zero_array[0][t][dict_of_letters.char_to_int[sentence]] = 1
+            zero_array[0][t][char_to_int[sentence]] = 1
     return zero_array
 
 
