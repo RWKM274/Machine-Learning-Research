@@ -146,7 +146,7 @@ def convert_text_to_array(raw_text):
 
 
 def on_epoch_end(epoch, logs):
-    if(epoch % epochs_until_test == 0):
+    if epoch % epochs_until_test == 0:
         full_generated_text = ''
         random_example_index = random.randint(0,len(x_raw))
         test_text = x_raw[random_example_index]
@@ -194,7 +194,6 @@ if vtt_creation_from_list_file or single_vtt_creation:
     for i in range(len(ordered_list)):
         int_to_char[i] = ordered_list[i]
         char_to_int[ordered_list[i]] = i
-
 
     number_of_unique_letters = len(set(all_text))
     x, y = prepare_data(all_text)
