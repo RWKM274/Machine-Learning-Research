@@ -17,14 +17,11 @@ epochs = 50
 epochs_until_test = 5
 length_of_text_to_generate = 100
 
-# load model and weights
+# load model and weights (note, it doesnt do anything after yet)
 load_weights_and_model = False
 
-# train model
-train_model = False
-
-# build model
-build_model = False
+# build and train the model
+build_and_train_model = True
 
 # create vtt files using a list_file
 vtt_creation_from_list_file = False
@@ -48,7 +45,7 @@ write_to_txt_file = False
 single_vtt_creation = False
 
 # specify how many vtt files to create (-1 means that it will create all vtt from the list_file) with default of 18
-list_file_limitor = 18
+list_file_limitor = 22
 
 
 # credit: pdemange. From his collector.py
@@ -177,7 +174,7 @@ if single_vtt_creation:
     captions_class.downloadSubs(link_to_youtube, single_vtt_file_name)
 
 # move vtt content to strings and load it and or save in file
-if vtt_creation_from_list_file or single_vtt_creation:
+if build_and_train_model:
     all_text = ''
     for file_name in os.listdir('.'):
         if file_name.endswith('en.vtt'):
@@ -190,6 +187,8 @@ if vtt_creation_from_list_file or single_vtt_creation:
         test_file = open("all_text.txt", 'w')
         test_file.write(all_text)
 
+# checks to make sure that the content was loaded
+if all_text != '':
     # create a dictionary that contains int to char and vice versa
     ordered_list = sorted(list(set(all_text)))
     int_to_char = dict()
@@ -198,24 +197,25 @@ if vtt_creation_from_list_file or single_vtt_creation:
         int_to_char[i] = ordered_list[i]
         char_to_int[ordered_list[i]] = i
 
-    number_of_unique_letters = len(set(all_text))
-    x, y = prepare_data(all_text)
+        number_of_unique_letters = len(set(all_text))
+        print(number_of_unique_letters)
+        x, y = prepare_data(all_text)
 
-    # create an array of all prompts (input) to use for testing the model
-    x_raw = convert_to_text_array(all_text)
+        # create an array of all prompts (input) to use for testing the model
+        x_raw = convert_to_text_array(all_text)
 
 if __name__ == '__main__':
 
-    if build_model:
+    # checks to make sure that the content was loaded
+    if build_and_train_model and all_text != '':
         model = create_model()
-
-    if train_model:
         model.fit(x, y, batch_size=1024, epochs=epochs, verbose=1, callbacks=[LambdaCallback(on_epoch_end=on_epoch_end)])
         with open('mymodel.json', 'w') as f:
             f.write(model.to_json())
         model.save_weights('caption.h5')
 
-    if load_weights_and_model:
+    # checks to make sure that the content was loaded
+    if load_weights_and_model and all_text != '':
         # load model and weights
         caption_model = open('mymodel.json', 'r')
         model = model_from_json(caption_model.read())
