@@ -118,15 +118,15 @@ def on_epoch_end(epoch, _):
                 sys.stdout.flush()
             print()
 
-'''
+
 jsonLoad = open('saved_model.json')
 modelRead = jsonLoad.read()
 jsonLoad.close()
 model = model_from_json(modelRead)
-model.load_weights('first_try.h5')
+model.load_weights('second_try.h5')
 generateText()
-'''
-model.fit(x,y,batch_size=1024, epochs=50, verbose=1, callbacks=[LambdaCallback(on_epoch_end=on_epoch_end)])
-with open('saved_model.json', 'w') as f:
-    f.write(model.to_json())
-model.save_weights('second_try.h5')
+
+#model.fit(x,y,batch_size=1024, epochs=50, verbose=1, callbacks=[LambdaCallback(on_epoch_end=on_epoch_end)])
+#with open('saved_model.json', 'w') as f:
+#    f.write(model.to_json())
+#model.save_weights('second_try.h5')
