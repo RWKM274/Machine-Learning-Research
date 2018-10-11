@@ -3,11 +3,12 @@ import re
 import os
 import webvtt
 import numpy as np
+import random
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.callbacks import LambdaCallback
-from keras.models import Sequential, load_model
+from keras.models import Sequential, load_model, model_from_json
 
 max_len_of_sent = 40
 
@@ -16,6 +17,18 @@ epochs = 50
 # variables for testing the model every so often
 epochs_until_test = 5
 length_of_text_to_generate = 100
+
+# load model and weights
+load_weights_and_model = False
+
+# train model
+train_model = False
+
+# build model
+build_model = False
+
+# create vtt files using a list_file
+vtt_creation_from_list_file = False
 
 
 
@@ -92,7 +105,6 @@ def prepare_data(list, steps=3):
 
     for t, sentence in enumerate(y_raw):
         for loc, letters in enumerate(sentence):
-            # print(t, loc, letters, dict_of_letters.char_to_int[letters])
             y_train[t][dict_of_letters.char_to_int[letters]] = 1
     return x_train, y_train
 
@@ -115,42 +127,47 @@ def convert_text_to_np_array(text_array):
 def create_model():
     model = Sequential()
     model.add(LSTM(128, input_shape=(max_len_of_sent, number_of_unique_letters)))
-    model.add(Dense(number_of_unique_letters, activation='relu'))
+    model.add(Dense(number_of_unique_letters, activation='softmax'))
     model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
     model.optimizer.lr = 0.01
     return model
 
 
 def convert_text_to_array(raw_text):
-    zero_array = np.zeros((len(raw_text), max_len_of_sent, number_of_unique_letters), dtype=np.bool)
+    zero_array = np.zeros((1, max_len_of_sent, number_of_unique_letters), dtype=np.bool)
 
     # converting letters into array of 0 and 1 for the appropriate letter
     for t, sentence in enumerate(raw_text):
-        for loc, letters in enumerate(sentence):
-            zero_array[t][loc][dict_of_letters.char_to_int[letters]] = 1
+            zero_array[0][t][dict_of_letters.char_to_int[sentence]] = 1
     return zero_array
 
 
 def on_epoch_end(epoch, logs):
     if(epoch % epochs_until_test == 0):
         full_generated_text = ''
-        test_text = x_raw[0]
+        random_example_index = random.randint(0,len(x_raw))
+        test_text = x_raw[random_example_index]
         print('Testing time!')
-        print(test_text)
         full_generated_text = full_generated_text + test_text
 
         for i in range(length_of_text_to_generate):
-            print('start: ' + test_text)
             test_array = convert_text_to_array(test_text)
             array_answer = model.predict(test_array, verbose=0)[0]
             added_letter = dict_of_letters.int_to_char[np.argmax(array_answer)]
             # print(added_letter)
             test_text = test_text + added_letter
             test_text = test_text[1:]
-            print('ending: ' + test_text)
             full_generated_text = full_generated_text + added_letter
         print(full_generated_text)
 
+
+if(vtt_creation_from_list_file):
+	# download captions from youtube based on a file of links
+	captions_class.downloadFromList("youtube_links_game_theory.txt", "game_theory")
+
+if(single_vtt_creation):
+	# download caption from a single youtube video
+	captions_class.downloadSubs("https://youtu.be/otwkRq_KnG0", "8-bitryan")
 
 # I may need to clean up the data (maybe)
 captions_class = CaptionCollector()
@@ -173,27 +190,22 @@ x_raw = convert_to_text_array(all_text)
 
 
 if __name__ == '__main__':
-    captions_class = CaptionCollector()
-    # captions_class.downloadFromList("youtube_links_game_theory.txt", "game_theory")
-    # captions_class.downloadSubs("https://youtu.be/otwkRq_KnG0", "8-bitryan")
-    # caption = captions_class.readAllCaptions('8-bitryan.en.vtt')
 
+    if(build_model):
+    	model = create_model()
 
+    if(train_model):
+	    model.fit(x, y, batch_size=1024, epochs=epochs, verbose=1, callbacks=[LambdaCallback(on_epoch_end=on_epoch_end)])
+	    with open('mymodel.json', 'w') as f:
+	    	f.write(model.to_json())
+	    model.save_weights('caption.h5')
 
-    # pass in the sentence and the number of unique letters
-    x, y = prepare_data(all_text)
-    # model = load_model('caption.h5')
-    model = create_model()
-    model.fit(x, y, batch_size=1024, epochs=epochs, verbose=1, callbacks=[LambdaCallback(on_epoch_end=on_epoch_end)])
-    model.save('caption.h5')
-
-
-
-
-    # x, y = prepare_data(sent, number_of_unique_letters, dict_of_letters)
-    # ordered_list = sorted(list(set(sent)))
-    # dict_of_letters = directory_of_letters(ordered_list)
-    # number_of_unique_letters = len(set(sent.lower()))
+    if(load_weights_and_model):
+	    # load model and weights
+	    caption_model = open('mymodel.json', 'r')
+	    model = model_from_json(caption_model.read())
+	    caption_model.close()
+	    model.load_weights('caption.h5')
 
 
 
