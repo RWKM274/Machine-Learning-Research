@@ -203,6 +203,8 @@ if all_text != '':
 
         # create an array of all prompts (input) to use for testing the model
         x_raw = convert_to_text_array(all_text)
+else:
+    print('Wanring there is no captions. (you may not have any en.vtt files.')
 
 if __name__ == '__main__':
 
