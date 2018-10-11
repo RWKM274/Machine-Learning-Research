@@ -47,8 +47,8 @@ write_to_txt_file = False
 # create vtt for a single youtube caption
 single_vtt_creation = False
 
-# specify how many vtt files to create (-1 means that it will create all vtt from the list_file)
-list_file_limitor = -1
+# specify how many vtt files to create (-1 means that it will create all vtt from the list_file) with default of 18
+list_file_limitor = 18
 
 
 # credit: pdemange. From his collector.py
