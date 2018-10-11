@@ -176,6 +176,7 @@ if single_vtt_creation:
     # download caption from a single youtube video
     captions_class.downloadSubs(link_to_youtube, single_vtt_file_name)
 
+# move vtt content to strings and load it and or save in file
 if vtt_creation_from_list_file or single_vtt_creation:
     all_text = ''
     for file_name in os.listdir('.'):
@@ -184,6 +185,7 @@ if vtt_creation_from_list_file or single_vtt_creation:
             sent = str.join(' ', caption).lower()
             all_text = all_text + sent
 
+    # save all captions to file
     if write_to_txt_file:
         test_file = open("all_text.txt", 'w')
         test_file.write(all_text)
