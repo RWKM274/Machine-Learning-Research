@@ -148,58 +148,66 @@ def on_epoch_end(epoch, logs):
         for i in range(length_of_text_to_generate):
             test_array = convert_text_to_array(test_text)
             array_answer = model.predict(test_array, verbose=0)[0]
-            added_letter = dict_of_letters.int_to_char[np.argmax(array_answer)]
+            added_letter = int_to_char[np.argmax(array_answer)]
             # print(added_letter)
             test_text = test_text + added_letter
             test_text = test_text[1:]
             full_generated_text = full_generated_text + added_letter
         print(full_generated_text)
 
+
 # always initalize with caption class
 captions_class = CaptionCollector()
 
-if(vtt_creation_from_list_file):
-	# download captions from youtube based on a file of links
-	captions_class.downloadFromList("youtube_links_game_theory.txt", "game_theory")
+if vtt_creation_from_list_file:
+    # download captions from youtube based on a file of links
+    captions_class.downloadFromList("youtube_links_game_theory.txt", "game_theory")
 
-if(single_vtt_creation):
-	# download caption from a single youtube video
-	captions_class.downloadSubs("https://youtu.be/otwkRq_KnG0", "8-bitryan")
+if single_vtt_creation:
+    # download caption from a single youtube video
+    captions_class.downloadSubs("https://youtu.be/otwkRq_KnG0", "8-bitryan")
 
-if(vtt_creation_from_list_file or single_vtt_creation):
-	all_text = ''
-	for file_name in os.listdir('.'):
-		if(file_name.endswith('en.vtt')):
-			caption = captions_class.readAllCaptions(file_name)
-			sent = str.join(' ', caption).lower()
-			all_text = all_text + sent
+if vtt_creation_from_list_file or single_vtt_creation:
+    all_text = ''
+    for file_name in os.listdir('.'):
+        if file_name.endswith('en.vtt'):
+            caption = captions_class.readAllCaptions(file_name)
+            sent = str.join(' ', caption).lower()
+            all_text = all_text + sent
 
-	if(write_to_txt_file):
-		test_file = open("all_text.txt", 'w')
-		test_file.write(all_text)
+    if write_to_txt_file:
+        test_file = open("all_text.txt", 'w')
+        test_file.write(all_text)
 
-	ordered_list = sorted(list(set(all_text)))
-	dict_of_letters = directory_of_letters(ordered_list)
-	number_of_unique_letters = len(set(all_text))
-	x, y = prepare_data(all_text)
+    # create a dictionary that contains int to char and vice versa
+    ordered_list = sorted(list(set(all_text)))
+    int_to_char = dict()
+    char_to_int = dict()
+    for i in range(len(ordered_list)):
+        int_to_char[i] = ordered_list[i]
+        char_to_int[ordered_list[i]] = i
 
-	# create an array of all prompts (input) to use for testing the model
-	x_raw = convert_to_text_array(all_text)
+
+    number_of_unique_letters = len(set(all_text))
+    x, y = prepare_data(all_text)
+
+    # create an array of all prompts (input) to use for testing the model
+    x_raw = convert_to_text_array(all_text)
 
 if __name__ == '__main__':
 
-    if(build_model):
-    	model = create_model()
+    if build_model:
+        model = create_model()
 
-    if(train_model):
-	    model.fit(x, y, batch_size=1024, epochs=epochs, verbose=1, callbacks=[LambdaCallback(on_epoch_end=on_epoch_end)])
-	    with open('mymodel.json', 'w') as f:
-	    	f.write(model.to_json())
-	    model.save_weights('caption.h5')
+    if train_model:
+        model.fit(x, y, batch_size=1024, epochs=epochs, verbose=1, callbacks=[LambdaCallback(on_epoch_end=on_epoch_end)])
+        with open('mymodel.json', 'w') as f:
+            f.write(model.to_json())
+        model.save_weights('caption.h5')
 
-    if(load_weights_and_model):
-	    # load model and weights
-	    caption_model = open('mymodel.json', 'r')
-	    model = model_from_json(caption_model.read())
-	    caption_model.close()
-	    model.load_weights('caption.h5')
+    if load_weights_and_model:
+        # load model and weights
+        caption_model = open('mymodel.json', 'r')
+        model = model_from_json(caption_model.read())
+        caption_model.close()
+        model.load_weights('caption.h5')
