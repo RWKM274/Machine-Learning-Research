@@ -29,7 +29,19 @@ build_model = False
 # create vtt files using a list_file
 vtt_creation_from_list_file = False
 
-# write to file of the combined captions
+# the name of the file with all the youtube links
+list_file_name = 'youtube_links_game_theory.txt'
+
+# file name for vtt that contains the youtube captions
+multi_vtt_file_name = 'game_theory'
+
+# link to a single youtube video
+link_to_youtube = 'https://youtu.be/otwkRq_KnG0'
+
+# single file name for vtt that contains the youtube captions
+single_vtt_file_name = '8-bitryan'
+
+# write the combined captions to a file
 write_to_txt_file = False
 
 # create vtt for a single youtube caption
@@ -37,6 +49,7 @@ single_vtt_creation = False
 
 # specify how many vtt files to create (-1 means create all vtt from the list_file)
 list_file_limitor = -1
+
 
 # credit: pdemange. From his collector.py
 class CaptionCollector:
@@ -156,11 +169,11 @@ captions_class = CaptionCollector()
 
 if vtt_creation_from_list_file:
     # download captions from youtube based on a file of links
-    captions_class.downloadFromList("youtube_links_game_theory.txt", "game_theory")
+    captions_class.downloadFromList(list_file_name, multi_vtt_file_name)
 
 if single_vtt_creation:
     # download caption from a single youtube video
-    captions_class.downloadSubs("https://youtu.be/otwkRq_KnG0", "8-bitryan")
+    captions_class.downloadSubs(link_to_youtube, single_vtt_file_name)
 
 if vtt_creation_from_list_file or single_vtt_creation:
     all_text = ''
