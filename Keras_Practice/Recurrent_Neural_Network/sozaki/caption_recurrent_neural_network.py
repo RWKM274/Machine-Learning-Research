@@ -24,10 +24,13 @@ load_weights_and_model = False
 build_and_train_model = True
 
 # create vtt files using a list_file
-vtt_creation_from_list_file = False
+vtt_creation_from_list_file = True
+
+# create vtt for a single youtube caption
+single_vtt_creation = False
 
 # the name of the file with all the youtube links
-list_file_name = 'youtube_links_game_theory.txt'
+link_list_file_name = 'youtube_links_game_theory.txt'
 
 # file name for vtt that contains the youtube captions
 multi_vtt_file_name = 'game_theory'
@@ -38,12 +41,6 @@ link_to_youtube = 'https://youtu.be/otwkRq_KnG0'
 # single file name for vtt that contains the youtube captions
 single_vtt_file_name = '8-bitryan'
 
-# create vtt for a single youtube caption
-single_vtt_creation = False
-
-# do you want to create or update the txt with all of the captions from your vtt files in this directory
-update_or_create_txt_file_from_vtt = True
-
 # file name of the file that has all of the captions
 file_name_of_all_caption = 'all_text.txt'
 
@@ -52,6 +49,9 @@ list_file_limitor = 22
 
 # steps to move in a text when creating arrays of sentences
 steps = 3
+
+
+
 
 
 # credit: pdemange. From his collector.py
@@ -119,7 +119,7 @@ class CaptionsText:
 
         if vtt_creation_from_list_file:
             # download captions from youtube based on a file of links
-            captions_class.downloadFromList(list_file_name, multi_vtt_file_name)
+            captions_class.downloadFromList(link_list_file_name, multi_vtt_file_name)
 
         if single_vtt_creation:
             # download caption from a single youtube video
@@ -141,7 +141,7 @@ class CaptionsText:
         test_file.close()
 
     def create_dictionary_and_prepare_data(self):
-        if update_or_create_txt_file_from_vtt:
+        if vtt_creation_from_list_file or single_vtt_creation:
             self.vtt_to_txtfile()
 
         # opens file with all of the captions
@@ -207,7 +207,7 @@ class CaptionsText:
             for i in range(length_of_text_to_generate):
 
                 # converting raw text to numpy array
-                test_array = convert_text_to_array(test_text)
+                test_array = self.convert_text_to_array(test_text)
 
                 # using numpy array, it will predict what the next letter will be
                 array_answer = model.predict(test_array, verbose=0)[0]
