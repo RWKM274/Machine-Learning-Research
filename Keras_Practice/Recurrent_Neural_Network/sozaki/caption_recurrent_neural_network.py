@@ -38,14 +38,20 @@ link_to_youtube = 'https://youtu.be/otwkRq_KnG0'
 # single file name for vtt that contains the youtube captions
 single_vtt_file_name = '8-bitryan'
 
-# write the combined captions to a file
-write_to_txt_file = False
-
 # create vtt for a single youtube caption
 single_vtt_creation = False
 
+# do you want to create or update the txt with all of the captions from your vtt files in this directory
+update_or_create_txt_file_from_vtt = True
+
+# file name of the file that has all of the captions
+file_name_of_all_caption = 'all_text.txt'
+
 # specify how many vtt files to create (-1 means that it will create all vtt from the list_file) with default of 18
 list_file_limitor = 22
+
+# steps to move in a text when creating arrays of sentences
+steps = 3
 
 
 # credit: pdemange. From his collector.py
@@ -97,35 +103,139 @@ class CaptionCollector:
                 temp = subtitleFileName+'_'+str(i)
                 self.downloadSubs(url, temp)
 
+# contains all the captions from the Youtube videos
+class CaptionsText:
+    def __init__(self):
+        self.number_of_unique_letters = 0
+        self.x_raw = []
+        self.y_raw = []
+        self.int_to_char = dict()
+        self.char_to_int = dict()
+        self.all_caption_string = ''
 
-def prepare_data(list, steps=3):
-    x_raw = []
-    y_raw = []
-    for i in range(0, len(list) - max_len_of_sent, steps):
-        x_raw.append(list[i:i + max_len_of_sent])
-        y_raw.append(list[i + max_len_of_sent])
-    x_train = np.zeros((len(y_raw), max_len_of_sent, number_of_unique_letters), dtype=np.bool)
-    y_train = np.zeros((len(y_raw), number_of_unique_letters), dtype=np.bool)
+    def vtt_to_txtfile(self):
+        # always initalize with caption class
+        captions_class = CaptionCollector()
 
-    # converting letters into array of 0 and 1 for the appropriate letter
-    for t, sentence in enumerate(x_raw):
-        for loc, letters in enumerate(sentence):
-            x_train[t][loc][char_to_int[letters]] = 1
+        if vtt_creation_from_list_file:
+            # download captions from youtube based on a file of links
+            captions_class.downloadFromList(list_file_name, multi_vtt_file_name)
 
-    for t, sentence in enumerate(y_raw):
-        for loc, letters in enumerate(sentence):
-            y_train[t][char_to_int[letters]] = 1
-    return x_train, y_train
+        if single_vtt_creation:
+            # download caption from a single youtube video
+            captions_class.downloadSubs(link_to_youtube, single_vtt_file_name)
+
+        # move vtt content to a txt file
+        all_text = ''
+        for file_name in os.listdir('.'):
+            if file_name.endswith('en.vtt'):
+                print('reading captions from ' + file_name)
+                caption = captions_class.readAllCaptions(file_name)
+                sent = str.join(' ', caption).lower()
+                all_text = all_text + sent
+
+        # save all captions to file
+        print('creating ' + file_name_of_all_caption)
+        test_file = open(file_name_of_all_caption, 'w')
+        test_file.write(all_text)
+        test_file.close()
+
+    def create_dictionary_and_prepare_data(self):
+        if update_or_create_txt_file_from_vtt:
+            self.vtt_to_txtfile()
+
+        # opens file with all of the captions
+        print('reading from ' + file_name_of_all_caption)
+        all_caption_text_file = open(file_name_of_all_caption, 'r')
+        self.all_caption_string = all_caption_text_file.read()
+        all_caption_text_file.close()
+
+        # checks to make sure that the content was loaded
+        if self.all_caption_string != '':
 
 
-def convert_to_text_array(list, steps=3):
-    x_raw = []
-    for i in range(0, len(list) - max_len_of_sent, steps):
-        x_raw.append(list[i:i + max_len_of_sent])
-    return x_raw
+            # create a dictionary that contains int to char and vice versa
+            ordered_list = sorted(list(set(self.all_caption_string)))
+            for i in range(len(ordered_list)):
+                self.int_to_char[i] = ordered_list[i]
+                self.char_to_int[ordered_list[i]] = i
+
+            # creating raw text dataset and training dataset
+            self.number_of_unique_letters = len(set(self.all_caption_string))
+            # print(self.number_of_unique_letters)
+
+            """ Going through the full caption string and creating an array that contains
+                raw text that is max_len_of_sent in length.
+            """
+            for i in range(0, len(self.all_caption_string) - max_len_of_sent, steps):
+                self.x_raw.append(self.all_caption_string[i:i + max_len_of_sent])
+                self.y_raw.append(self.all_caption_string[i + max_len_of_sent])
+
+            """ creating numpy array with the x training set to have a shape of (length of all the samples,
+                length of a sentence, length of all the possible unique words in the text). And the y training set
+                has a shape of (length of all the samples, length of all the possible unique words in the text).
+            """
+            self.x_train = np.zeros((len(self.x_raw), max_len_of_sent, self.number_of_unique_letters), dtype=np.bool)
+            self.y_train = np.zeros((len(self.x_raw), self.number_of_unique_letters), dtype=np.bool)
+
+            """ Converting letters into array of 0 and 1 (where 1 is the location that is associated with that letter)
+                with a length equal to all the unique characters. It does that for the x and y (input and output
+                respectively).
+            """
+            for t, sentence in enumerate(self.x_raw):
+                for loc, letters in enumerate(sentence):
+                    self.x_train[t][loc][self.char_to_int[letters]] = 1
+
+            for t, sentence in enumerate(self.y_raw):
+                for loc, letters in enumerate(sentence):
+                    self.y_train[t][self.char_to_int[letters]] = 1
+        else:
+            print('Warning! There is no captions. (you may not have any en.vtt files.)')
+
+    def on_epoch_end(self, epoch, logs):
+        print('working')
+        if epoch % epochs_until_test == 0:
+            full_generated_text = ''
+
+            # picks a random sentence from the array of sentences
+            random_example_index = random.randint(0, len(self.x_raw))
+            test_text = self.x_raw[random_example_index]
+            print('Testing time!')
+            full_generated_text = full_generated_text + test_text
+
+            # generates length_of_text_to_generate letters and adds that to the original sentence
+            for i in range(length_of_text_to_generate):
+
+                # converting raw text to numpy array
+                test_array = convert_text_to_array(test_text)
+
+                # using numpy array, it will predict what the next letter will be
+                array_answer = model.predict(test_array, verbose=0)[0]
+                added_letter = self.int_to_char[np.argmax(array_answer)]
+                # print(added_letter)
+
+                # add the letter to the sentence and then take everything but the first letter and feed that back in
+                test_text = test_text + added_letter
+                test_text = test_text[1:]
+
+                # add the new letter to the full text
+                full_generated_text = full_generated_text + added_letter
+
+            print(full_generated_text)
+
+    def convert_text_to_array(self, raw_text):
+        zero_array = np.zeros((1, max_len_of_sent, self.number_of_unique_letters), dtype=np.bool)
+
+        # converting letters into array of 0 and 1 for the appropriate letter
+        for t, sentence in enumerate(raw_text):
+            zero_array[0][t][self.char_to_int[sentence]] = 1
+        return zero_array
 
 
-def create_model():
+
+
+
+def create_model(number_of_unique_letters):
     model = Sequential()
     model.add(LSTM(128, input_shape=(max_len_of_sent, number_of_unique_letters)))
     model.add(Dense(number_of_unique_letters, activation='softmax'))
@@ -134,90 +244,23 @@ def create_model():
     return model
 
 
-def convert_text_to_array(raw_text):
-    zero_array = np.zeros((1, max_len_of_sent, number_of_unique_letters), dtype=np.bool)
-
-    # converting letters into array of 0 and 1 for the appropriate letter
-    for t, sentence in enumerate(raw_text):
-            zero_array[0][t][char_to_int[sentence]] = 1
-    return zero_array
-
-
-def on_epoch_end(epoch, logs):
-    if epoch % epochs_until_test == 0:
-        full_generated_text = ''
-        random_example_index = random.randint(0,len(x_raw))
-        test_text = x_raw[random_example_index]
-        print('Testing time!')
-        full_generated_text = full_generated_text + test_text
-
-        for i in range(length_of_text_to_generate):
-            test_array = convert_text_to_array(test_text)
-            array_answer = model.predict(test_array, verbose=0)[0]
-            added_letter = int_to_char[np.argmax(array_answer)]
-            # print(added_letter)
-            test_text = test_text + added_letter
-            test_text = test_text[1:]
-            full_generated_text = full_generated_text + added_letter
-        print(full_generated_text)
-
-
-# always initalize with caption class
-captions_class = CaptionCollector()
-
-if vtt_creation_from_list_file:
-    # download captions from youtube based on a file of links
-    captions_class.downloadFromList(list_file_name, multi_vtt_file_name)
-
-if single_vtt_creation:
-    # download caption from a single youtube video
-    captions_class.downloadSubs(link_to_youtube, single_vtt_file_name)
-
-# move vtt content to strings and load it and or save in file
-if build_and_train_model:
-    all_text = ''
-    for file_name in os.listdir('.'):
-        if file_name.endswith('en.vtt'):
-            caption = captions_class.readAllCaptions(file_name)
-            sent = str.join(' ', caption).lower()
-            all_text = all_text + sent
-
-    # save all captions to file
-    if write_to_txt_file:
-        test_file = open("all_text.txt", 'w')
-        test_file.write(all_text)
-
-# checks to make sure that the content was loaded
-if all_text != '':
-    # create a dictionary that contains int to char and vice versa
-    ordered_list = sorted(list(set(all_text)))
-    int_to_char = dict()
-    char_to_int = dict()
-    for i in range(len(ordered_list)):
-        int_to_char[i] = ordered_list[i]
-        char_to_int[ordered_list[i]] = i
-
-        number_of_unique_letters = len(set(all_text))
-        print(number_of_unique_letters)
-        x, y = prepare_data(all_text)
-
-        # create an array of all prompts (input) to use for testing the model
-        x_raw = convert_to_text_array(all_text)
-else:
-    print('Wanring there is no captions. (you may not have any en.vtt files.')
-
 if __name__ == '__main__':
 
+    # preparing the training set
+    caption_text = CaptionsText()
+    caption_text.create_dictionary_and_prepare_data()
+
     # checks to make sure that the content was loaded
-    if build_and_train_model and all_text != '':
-        model = create_model()
-        model.fit(x, y, batch_size=1024, epochs=epochs, verbose=1, callbacks=[LambdaCallback(on_epoch_end=on_epoch_end)])
+    if build_and_train_model and caption_text.all_caption_string != '':
+        model = create_model(caption_text.number_of_unique_letters)
+        model.fit(caption_text.x_train, caption_text.y_train, batch_size=1024, epochs=epochs, verbose=1, callbacks=[LambdaCallback(
+            on_epoch_end=caption_text.on_epoch_end)])
         with open('mymodel.json', 'w') as f:
             f.write(model.to_json())
         model.save_weights('caption.h5')
 
     # checks to make sure that the content was loaded
-    if load_weights_and_model and all_text != '':
+    if load_weights_and_model:
         # load model and weights
         caption_model = open('mymodel.json', 'r')
         model = model_from_json(caption_model.read())
