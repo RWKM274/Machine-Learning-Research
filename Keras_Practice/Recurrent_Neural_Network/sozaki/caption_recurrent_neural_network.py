@@ -24,7 +24,7 @@ load_weights_and_model = False
 build_and_train_model = True
 
 # create vtt files using a list_file
-vtt_creation_from_list_file = True
+vtt_creation_from_list_file = False
 
 # create vtt for a single youtube caption
 single_vtt_creation = False
@@ -135,7 +135,7 @@ class CaptionsText:
                 all_text = all_text + sent
 
         # save all captions to file
-        print('creating ' + file_name_of_all_caption)
+        print('creating ' + file_name_of_all_caption + ' to store all captions.')
         test_file = open(file_name_of_all_caption, 'w')
         test_file.write(all_text)
         test_file.close()
