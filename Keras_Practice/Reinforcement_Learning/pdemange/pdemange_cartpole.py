@@ -8,7 +8,7 @@ import gym
 
 class ReinforcementModel:
   def __init__(self, env):
-    self.learningRate = .01
+    self.learningRate = .001
     self.gamma = .9
     self.epsilonRandom = 1
     self.epsilonDecay = .995
@@ -48,11 +48,12 @@ class ReinforcementModel:
     for sample in samples:
       state, action, reward, nextState, done = sample
       target = self.network.predict(state)
-      if done: 
-        target[0][action] = reward
-      else:
-        target[0][action] = reward + max(self.network.predict(nextState)[0]) * self.gamma
-      self.network.fit(state, target, epochs=1, verbose=0)
+      qUpdate = reward
+      if not done: 
+        qUpdate = reward + max(self.network.predict(nextState)[0]) * self.gamma
+      qPred = self.network.predict(state)
+      qPred[0][action] = qUpdate
+      self.network.fit(state, qPred, epochs=1, verbose=0)
     
 if __name__ == '__main__':
   env = gym.make('CartPole-v0')
@@ -67,7 +68,7 @@ if __name__ == '__main__':
       env.render()
       newState, reward, done, _ = env.step(action)
       if done:
-        reward = -10
+        reward = -reward
       newState = newState.reshape(1,4)
       dqn.memAdd(currState, action, reward, newState, done)
       dqn.replay()
