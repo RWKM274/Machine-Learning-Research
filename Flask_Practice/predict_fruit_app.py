@@ -11,13 +11,17 @@ from keras.preprocessing.image import img_to_array
 from flask import request
 from flask import jsonify
 from flask import Flask
+import tensorflow as tf
+import re
 
 
 app = Flask(__name__)
 
 def get_model():
     global model
-    model = load_model('fruit_neural_network.h5')
+    global graph
+    graph = tf.get_default_graph()
+    model = load_model('neural_network.h5')
     print("Loaded model!")
 
 def preprocess_image(image, target_size):
@@ -37,19 +41,22 @@ get_model()
 @app.route("/predict", methods=["POST"])
 def predict():
     message = request.get_json(force=True)
-    encoded = message['image']
+    encoded = re.sub('^data:image/.+;base64,', '', message['image'])
     decoded = base64.b64decode(encoded)
     image = Image.open(io.BytesIO(decoded))
     processed_image = preprocess_image(image, target_size=(150, 150))
 
-    prediction = model.predict(processed_image)
+    with graph.as_default():
+        prediction = model.predict(processed_image)
 
     response = {
         'prediction' : {
-            'apple' : prediction[0][0],
-            'banana' : prediction[0][1],
-            'pear' : prediction[0][2]
+            'apple' : float(prediction[0][0]),
+            'banana' : float(prediction[0][1]),
+            'pear' : float(prediction[0][2])
         }
     }
 
     return jsonify(response)
+
+app.run()
