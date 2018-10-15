@@ -1,10 +1,10 @@
 import numpy as np
 import os
-from keras.models import Sequential
+from keras.models import Model, Sequential
 from keras.layers import Dense, Conv2D, GlobalAveragePooling2D, Flatten, Dropout, Activation
 from keras import optimizers
 from keras.preprocessing.image import ImageDataGenerator, img_to_array, array_to_img, load_img
-from keras.applications import vgg16
+from keras.applications import inception_v3,vgg16
 from keras import regularizers
 
 
@@ -24,68 +24,66 @@ class AnimalClassifier:
 
     def prepareData(self, trD, teD, vD):
 
-        testDatagen = ImageDataGenerator(rescale=.1/255)
-        trainDatagen = ImageDataGenerator(rescale=.1/255)
+        testDatagen = ImageDataGenerator()
+        trainDatagen = ImageDataGenerator()
         train = trainDatagen.flow_from_directory(
             trD,
             target_size=(224, 224),
             batch_size=self.batchSize,
-            class_mode='binary')
+            classes=['cat','dog'])
 
         test = testDatagen.flow_from_directory(
             teD,
             target_size=(224, 224),
             batch_size=self.batchSize,
-            class_mode='binary')
+            classes=['cat','dog'])
 
         valid = testDatagen.flow_from_directory(
             vD,
             target_size=(224, 224),
             batch_size=self.batchSize,
-            class_mode='binary')
+            classes=['cat','dog'])
 
         #print(str(train))
         return train, test, valid
 
     def createModel(self):
-        vggModel = vgg16.VGG16(include_top=False, input_shape=(224,224,3))
+        baseModel = vgg16.VGG16()
+        baseModel.layers.pop()
         model = Sequential()
-        for layer in vggModel.layers:
-            model.add(layer)
-        #model.layers.pop()
-        #Creating the convolutional layer
-        '''
-        model = Sequential()
-        model.add(Conv2D(32, (3, 3), input_shape=(150,150,3), activation='relu'))
-        model.add(Conv2D(32, (3, 3), activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2,2)))
-        model.add(Dropout(0.25))
-        model.add(Conv2D(64, (3, 3), activation='relu'))
-        model.add(Conv2D(64, (3, 3), activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2,2)))
-        model.add(Dropout(0.25))
-        model.add(Flatten())  # this converts our 3D feature maps to 1D feature vectors
-        model.optimizer.lr = .001
-        '''
-        for i in range(len(model.layers)):
-            model.layers[i].trainable = False
-        model.add(GlobalAveragePooling2D())
-        model.add(Dense(64, activation='relu'))
-        model.add(Dense(1, activation='sigmoid'))
-        model.compile(loss='binary_crossentropy', optimizer='sgd', metrics=['accuracy'])
-        model.optimizer.lr =.0001
-        model.optimizer.momentum = 0.9
+        for m in baseModel.layers:
+            model.add(m)
+        # add a global spatial average pooling layer
+        # = baseModel.output
+        #x = GlobalAveragePooling2D()(x)
+        # let's add a fully-connected layer
+        #x = Dense(1024, activation='relu')(x)
+        # and a logistic layer -- let's say we have 200 classes
+       
+        #model = Model(inputs=baseModel.input, outputs=predictions)
+        #for layer in baseModel.layers:
+        #    layer.trainable = False
+        for layer in model.layers:
+            layer.trainable = False
+        model.add(Dense(2, activation='softmax'))
+        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+        model.optimizer.lr = .0001
         return model
-
+     
     def saveWeights(self, fileName):
         self.network.save_weights(fileName+'.h5')
 
+    def saveModel(self, name):
+        with open(name+'.json', 'w') as f:
+          f.write(self.network.to_json())
+        self.network.save_weights(name+'_weights.h5')
+    
     def loadWeights(self, weightFile):
         self.network.load_weights(weightFile+'.h5')
 
     def practice(self):
         #print(self.train)
-        self.network.fit_generator(self.train, steps_per_epoch=self.trainingNumber/self.batchSize, validation_data=self.validate, validation_steps=self.validationNumber/self.batchSize,epochs=20)
+        self.network.fit_generator(self.train, steps_per_epoch=self.trainingNumber/self.batchSize, validation_data=self.validate, validation_steps=self.validationNumber/self.batchSize,epochs=15)
 
     def evaluate(self):
         trainingScores = self.network.evaluate_generator(self.train, steps=self.trainingNumber/10)
@@ -99,8 +97,8 @@ class AnimalClassifier:
         return self.network.predict(final)
 
 if __name__ == '__main__':
-    net = AnimalClassifier('data/train','data/test','data/validate',16)
-    net.practice()
-    #net.loadWeights('final2')
+    net = AnimalClassifier('data/train','data/test','data/validate',24)
+    #net.practice()
+    net.loadWeights('origin_weights')
     net.evaluate()
-    net.saveWeights('final2')
+    #net.saveWeights('origin')
