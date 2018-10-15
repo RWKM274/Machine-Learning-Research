@@ -33,16 +33,17 @@ class ReinforcementModel:
   
   def act(self, state):
     self.epsilonRandom *= self.epsilonDecay
+    #print(self.epsilonRandom)
     self.epsilonRandom = max(self.epsilonMin, self.epsilonRandom)
     if np.random.random() < self.epsilonRandom:
       return self.env.action_space.sample()
-    return np.argmax(self.model.predict(state)[0])
+    return np.argmax(self.network.predict(state)[0])
   
   def replay(self):
     batchSample = 32
     #If we don't have enough memory for it to learn, get some more!
     if len(self.memory) < batchSample:
-      return 
+      return
     samples = random.sample(self.memory, batchSample)
     for sample in samples:
       state, action, reward, nextState, done = sample
@@ -55,7 +56,7 @@ class ReinforcementModel:
     
 if __name__ == '__main__':
   env = gym.make('CartPole-v0')
-  trials = 100
+  trials = 100000
   trialLength = 400
   step = []
   dqn = ReinforcementModel(env)
@@ -67,13 +68,13 @@ if __name__ == '__main__':
       newState, reward, done, _ = env.step(action)
       if done:
         reward = -10
-      newState = newState.reshape(1,2)
-      dqn.remember(currState, action, reward, newState, done)
+      newState = newState.reshape(1,4)
+      dqn.memAdd(currState, action, reward, newState, done)
       dqn.replay()
       currState = newState
       if done:
         break
-    if step <= trialLength:
-      print('Failed to complete trial!')
+    if step <= 199:
+      print('Failed to complete trial! Trial: '+str(step))
     else:
-      print('Completed the trial!')
+      print('Completed the trial! Trial: '+str(step))
