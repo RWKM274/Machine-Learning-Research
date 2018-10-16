@@ -27,7 +27,6 @@ class text_generator:
         self.int_to_char = dict()
         self.char_to_int = dict()
         self.x_raw = []
-        self.max_len_of_sent = 40
         # steps to move in a text when creating arrays of sentences
         self.steps = 3
         self.length_of_text_to_generate = 200
@@ -123,6 +122,12 @@ def predict():
     message = request.get_json(force=True)
     with graph.as_default():
         generated_txt = text_gen.generating_text()
+
+        # clips the beginning word because it might have been cut off
+        position_of_space = generated_txt.find(' ')
+        print('position where the space starts: ' + str(position_of_space))
+        if position_of_space != 0:
+            generated_txt = generated_txt[position_of_space:]
 
     response = {
         'prediction' : generated_txt

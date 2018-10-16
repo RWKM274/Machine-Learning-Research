@@ -47,6 +47,12 @@ file_name_of_all_caption = 'all_text.txt'
 # specify how many vtt files to create (-1 means that it will create all vtt from the list_file) with default of 18
 list_file_limitor = 22
 
+# name of the file with the RNN weights
+model_weights_name = 'caption.h5'
+
+# the rest of the network is stored in this file
+model_json_name = 'mymodel.json'
+
 # steps to move in a text when creating arrays of sentences
 steps = 3
 
@@ -255,14 +261,14 @@ if __name__ == '__main__':
         model = create_model(caption_text.number_of_unique_letters)
         model.fit(caption_text.x_train, caption_text.y_train, batch_size=1024, epochs=epochs, verbose=1, callbacks=[LambdaCallback(
             on_epoch_end=caption_text.on_epoch_end)])
-        with open('mymodel.json', 'w') as f:
+        with open(model_json_name, 'w') as f:
             f.write(model.to_json())
-        model.save_weights('caption.h5')
+        model.save_weights(model_weights_name)
 
     # checks to make sure that the content was loaded
     if load_weights_and_model:
         # load model and weights
-        caption_model = open('mymodel.json', 'r')
+        caption_model = open(model_json_name, 'r')
         model = model_from_json(caption_model.read())
         caption_model.close()
-        model.load_weights('caption.h5')
+        model.load_weights(model_weights_name)
