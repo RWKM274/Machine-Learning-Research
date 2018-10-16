@@ -5,6 +5,12 @@ This repository will serve as a collection of machine learning resources, as wel
 
 Computers running Ubuntu were used for this project, and all programs were configured to use Python 3.6. 
 
+If you wish to follow along with our progress as a tutorial, you can download all the python dependencies from the requirements.txt file like so:
+
+```bash
+>$ pip install -r requirements.txt
+```
+
 ## Click Each Link to Track Our Progress (In Order): 
 
 1. [Making a Neural Network by Hand](https://github.com/pdemange/Machine-Learning-Research/tree/master/Machine_Learning_Basics)
