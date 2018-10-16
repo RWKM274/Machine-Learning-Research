@@ -51,10 +51,10 @@ def postExample():
 ```
 ## Rendering External HTML Web Pages
 
-To do this, a folder called "template" must be created for Flask within the same directory as the Flask program.
+To do this, a folder called "templates" must be created for Flask within the same directory as the Flask program.
 
 ```bash
->$ mkdir template
+>$ mkdir templates
 ```
 
 Then, within the folder you can put static web pages to be rendered, or accessed, by the Flask program.
