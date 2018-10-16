@@ -21,3 +21,7 @@ This repository will serve as a collection of machine learning resources, as wel
 ## Issues
 If you get this error that looks something like this: `Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA keras` you need to do this to get rid of the warning `os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'`.<br/>
 [For more information visite this stackoverflow page](https://stackoverflow.com/questions/47068709/your-cpu-supports-instructions-that-this-tensorflow-binary-was-not-compiled-to-u)
+
+## Installation
+1. `git clone https://github.com/pdemange/Machine-Learning-Research.git`<br/>
+2. install all necessary packages using pip3: `pip3 install -r requirement.txt`
