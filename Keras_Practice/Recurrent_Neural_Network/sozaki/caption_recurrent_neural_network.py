@@ -49,6 +49,7 @@ list_file_limitor = 22
 
 # name of the file with the RNN weights
 model_weights_name = 'caption.h5'
+
 # the rest of the network is stored in this file
 model_json_name = 'mymodel.json'
 
