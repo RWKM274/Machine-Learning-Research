@@ -6,12 +6,21 @@
 		* {
 			font-size: 30px;
 		}
+
+		#text-generated {
+			text-decoration:none;
+		}
+
 	</style>
 </head>
 <body>
 	<button id="generator-button">Generate Text</button>
 	<p style="font-weight:bold">Generated Text</p>
-	<p>The Neural Network says: <span id="text-generated"></span></p>
+	<div>
+        <span style="text-decoration:underline;">The Neural Network says:</span>
+        <span id="text-generated"></span>
+    </div>
+
 
 
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
