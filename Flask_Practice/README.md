@@ -30,12 +30,14 @@ Then, to define it's webpages, we specify the routes to the pages and the functi
 def index():
   return '<h1>hello world!</h1>'
 ```
+
 Finally, we run the Flask server like so: 
 
 ```Python 
 app.run(host='127.0.0.1', port=5000)
 ```
 
+And in the terminal:
 ```bash
 >$ python thepythonprogram.py
 ```
