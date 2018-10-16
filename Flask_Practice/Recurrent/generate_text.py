@@ -27,7 +27,6 @@ class text_generator:
         self.int_to_char = dict()
         self.char_to_int = dict()
         self.x_raw = []
-        self.max_len_of_sent = 40
         # steps to move in a text when creating arrays of sentences
         self.steps = 3
         self.length_of_text_to_generate = 200
