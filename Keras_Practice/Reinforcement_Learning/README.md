@@ -78,5 +78,27 @@ for sample in samples:
     network.fit(state, qPred)
     
 ```
+## How to give the network an environment?
 
+![OpenAI Gym](https://voyageintech.files.wordpress.com/2018/08/gym-icon.png)
 
+For our programs, we used some environments from Python's OpenAI Gym. They provide a lot of pre-made environments to introduce new users to the field of reinforcement learning! 
+
+The environment is very easy to make in python, it's as simple as this:
+
+```Python
+
+import gym
+
+...
+
+ env = gym.make('CartPole-v0')
+```
+
+Check out their documentation, and different environments, at their [website](https://gym.openai.com/)!
+
+## Articles used as references
+
+For our own learning, we used [this article](https://towardsdatascience.com/reinforcement-learning-w-keras-openai-dqns-1eed3a5338c) as a **reference** for some information about reinforcement learning. However, we didn't follow them fully since they don't incorporate some essential concepts, like punishing the neural network for making the wrong move, etc.
+
+[This article](https://skymind.ai/wiki/deep-reinforcement-learning) was also used to research more about DQNs, and reinforcement learning in general. It was used to fill the knowledge gaps that the previous article didn't elaborate on more. We recommend you check it out! 
