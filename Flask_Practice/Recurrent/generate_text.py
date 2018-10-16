@@ -123,6 +123,12 @@ def predict():
     with graph.as_default():
         generated_txt = text_gen.generating_text()
 
+        # clips the beginning word because it might have been cut off
+        position_of_space = generated_txt.find(' ')
+        print('position where the space starts: ' + str(position_of_space))
+        if position_of_space != 0:
+            generated_txt = generated_txt[position_of_space:]
+
     response = {
         'prediction' : generated_txt
     }
