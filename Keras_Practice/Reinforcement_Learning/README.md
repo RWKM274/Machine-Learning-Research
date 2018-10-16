@@ -1,4 +1,4 @@
-# Reinforcement Learning Concepts
+# Reinforcement Learning Concepts: Deep Q-Policy Network (DQN)
 
 ![Cartpole Example](https://cdn-images-1.medium.com/max/1600/1*oMSg2_mKguAGKy1C64UFlw.gif)
 
