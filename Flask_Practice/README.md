@@ -18,7 +18,7 @@ from flask import Flask
 
 #Start a flask instance
 
-app = Flask()
+app = Flask(__name__)
 ```
 
 Then, to define it's webpages, we specify the routes to the pages and the functions that handle the pages directly after.
@@ -83,7 +83,7 @@ def exampleFunc():
 		'greeting': 'Hello, ' + name + '!'
 	}
   return jsonify(response)
-  
 ```
+
 ## Links
 Here is the link to their [website](http://flask.pocoo.org/) and [github](https://github.com/pallets/flask).
