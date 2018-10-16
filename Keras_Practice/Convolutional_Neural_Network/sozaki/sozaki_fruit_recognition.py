@@ -4,6 +4,7 @@ from keras.preprocessing import image
 from keras.layers import Conv2D, MaxPooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras import backend as K, optimizers
+from keras.applications import vgg16
 import os
 
 """ code based from a Keras Blog
@@ -17,7 +18,7 @@ import os
 """
 
 # dimensions of our images
-img_width, img_height = 150, 150
+img_width, img_height = 224,224
 
 # locations of the data for training and testing
 train_dir = 'training_dataset'
@@ -57,7 +58,12 @@ evaluate_test = True
 	we compile the model using binary crossentropy and rmsprop optimizer."""
 def create_model():
 	optimization_rate = optimizers.rmsprop(lr=0.1)
+	base_vgg16 = vgg16.VGG16()
 	neural_network = Sequential()
+	for layer in base_vgg16.layers:
+		neural_network.add(layer)
+	neural_network.layers.pop()
+	'''
 	neural_network.add(Conv2D(32, (3, 3), input_shape=input_shape))
 	neural_network.add(Activation('relu'))
 	neural_network.add(MaxPooling2D(pool_size=(2, 2)))
@@ -76,20 +82,19 @@ def create_model():
 	neural_network.add(Dense(64))
 	neural_network.add(Activation('relu'))
 	neural_network.add(Dropout(0.5))
+	'''
+	for layer in neural_network.layers:
+		layer.trainable = False
 	neural_network.add(Dense(classes))
 	neural_network.add(Activation('softmax'))
-	neural_network.compile(loss='binary_crossentropy',
+	neural_network.compile(loss='categorical_crossentropy',
               	  optimizer='rmsprop',
 				  metrics=['accuracy'])
 	return neural_network
 
 def augment_training_set():
 	# modifies images to keep the neural network from overfitting
-	train_augment = ImageDataGenerator(
-	    rescale=1. / 255,
-	    shear_range=0.2,
-	    zoom_range=0.2,
-		horizontal_flip=True)
+	train_augment = ImageDataGenerator()
 
 	""" modifies the images to a particular width and height
 		(target_size) within the train directory(train_dir).
@@ -99,19 +104,19 @@ def augment_training_set():
 		train_dir,
 		target_size=(img_width, img_height),
 		batch_size=batch_size,
-		class_mode='categorical')
+		classes=['apples', 'banana', 'pear'])
 	return train_generator
 
 def print_accuracy(num_correct, num_total_files):
 	print('Accuracy: ' + str(num_correct/num_total_files * 100) + '%')
 
 def testing_neural_network(neural_network):
-	array_of_items = ['Apple', 'Banana', 'Pear']
+	array_of_items = ['apple', 'banana', 'pear']
 	file_spot = 0
 	num_total_files = 0
 	num_correct = 0
 	for dir_name in array_of_items:
-		for root, dirs, files in os.walk('./' + test_dir + '/' + dir_name):
+		for root, dirs, files in os.walk('./' + evaluate_dir + '/' + dir_name):
 			num_total_files += len(files)
 			if(Debug):
 				print('-'*80)
@@ -119,7 +124,7 @@ def testing_neural_network(neural_network):
 				print(dir_name)
 				print('-'*80)
 			for pics in files:
-				file_name = test_dir + '/' + dir_name + '/' + pics
+				file_name = evaluate_dir + '/' + dir_name + '/' + pics
 				test_img = image.load_img(file_name, target_size=(img_width, img_height))
 				x = image.img_to_array(test_img)
 				inputx = x.reshape([-1, img_width, img_height, 3])
@@ -143,6 +148,7 @@ def testing_neural_network(neural_network):
 def training_neural_network(neural_network, train_generator):
         neural_network.fit_generator(
                 train_generator,
+				# validation_data
                 steps_per_epoch=train_sample // batch_size,
                 epochs=epochs,
                 verbose=2)
@@ -189,13 +195,13 @@ def evaluate_custom_images():
 	print('Accuracy: ' + str(num_correct/num_total_files * 100) + '%')
 
 
-def evaluate_use_evaluate_function():
+def evaluate_use_evaluate_function(neural_network):
 	test_augment = ImageDataGenerator(rescale=1. / 255)
 	testing_generator = test_augment.flow_from_directory(
 		evaluate_dir,
 		target_size=(img_width, img_height),
 		batch_size=batch_size,
-		class_mode='categorical')
+		classes=['apples', 'banana', 'pear'])
 	results = neural_network.evaluate_generator(testing_generator)
 	print('Loss: ' + str(results[0]) + '\n' + 'Accuracy: ' + str(results[1]*100) + '%')
 
@@ -217,11 +223,11 @@ if(load_network == False):
 
 
 # loading an existing Neural Network model
-if(load_network):
-	try:
-		neural_network = load_model(neural_network_name)
-	except:
-		print('ERROR: could not load ' + neural_network_name)
+# if(load_network):
+# 	try:
+neural_network = load_model(neural_network_name)
+	# except:
+	# 	print('ERROR: could not load ' + neural_network_name)
 
 
 
