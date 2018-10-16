@@ -59,7 +59,6 @@ if __name__ == '__main__':
   env = gym.make('CartPole-v0')
   trials = 100000
   trialLength = 400
-  step = []
   dqn = ReinforcementModel(env)
   for trial in range(trials):
     currState = env.reset().reshape(1,4)
@@ -75,7 +74,7 @@ if __name__ == '__main__':
       currState = newState
       if done:
         break
-    if step <= 199:
+    if step <= 150:
       print('Failed to complete trial! Trial: '+str(step))
     else:
       print('Completed the trial! Trial: '+str(step))
