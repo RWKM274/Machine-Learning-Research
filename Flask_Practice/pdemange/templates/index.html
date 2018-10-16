@@ -1,0 +1,128 @@
+
+<head>
+<script
+			  src="https://code.jquery.com/jquery-3.3.1.min.js"
+			  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+			  crossorigin="anonymous"></script>
+<meta charset=utf-8 />
+<script type="text/javascript">
+	console.log("DED");
+
+	function answer(val){
+	if(val == 1){
+		$('#result')
+		.attr('src', 'http://getdrawings.com/img/white-dog-silhouette-20.png')
+		.width(300)
+		.height(300);
+	}else if(val == 2){
+		$('#result')
+		.attr('src','http://getdrawings.com/img/white-cat-silhouette-23.png')
+		.width(300)
+		.height(300);
+	}else{
+		$('#result').attr('src','')
+	}
+	}
+	function shitty(input){
+		var baseImage; 
+		$('#loading')
+	.attr('src','https://hanslodge.com/images/BcgrpBzqi.png')
+	.width(300)
+	.height(300);
+	if(input.files && input.files[0]){
+		var reader = new FileReader();
+		reader.onload = function(e){
+			$('#heck')
+			.attr('src', reader.result)
+			.width(300)
+			.height(300);
+			let dataUrl = reader.result;
+			baseImage = dataUrl;
+			console.log('Here: '+baseImage);
+			let message = {
+				image: baseImage
+			}
+			console.log(message);
+			$.post('/sample', JSON.stringify(message), function(response){
+				var ans = 3;
+				console.log("Got prediction!",response);
+				if(response.prediction.cat > response.prediction.dog){
+					ans = 2;
+				}else{
+					ans = 1;
+				}
+				answer(ans);
+			});
+		}
+		reader.readAsDataURL(input.files[0]);
+	};
+	}
+		/**
+	}
+	if(input.files && input.files[0]){
+		var reader = new FileReader();
+		reader.onload = function(e){
+			$('#heck')
+			.attr('src', e.target.result)
+			.width(300)
+			.height(300);
+			let dataUrl = reader.result;
+			baseImage = dataUrl.replace("data:image/png;base64,","");
+			console.log(baseImage);
+		}
+	};
+	let message = {
+		image: baseImage
+	}
+	console.log(message);
+	$.post('http://cs1.cornellcollege.edu:5000/sample', JSON.stringify(message), function(response){
+			if(val == 1){
+				$('#result')
+				.attr('src', 'http://getdrawings.com/img/white-dog-silhouette-20.png')
+				.width(300)
+				.height(300);
+			}else if(val == 2){
+				$('#result')
+				.attr('src','http://getdrawings.com/img/white-cat-silhouette-23.png')
+				.width(300)
+				.height(300);
+			}else{
+				$('#result').attr('src','')
+			}
+		});
+	});
+	**/
+</script>
+<style>
+.center {
+    text-align: center;
+    border-color: #ffffff;
+}
+
+#simple {width:100%; padding-top:10px;  text-align:center;}
+#simple div
+{
+display:inline-block;
+}
+
+body{
+	background-color: #000000;
+}
+</style>
+
+</head>
+<body>
+<div class='center' style='width:100%'>
+<input id='boi' type='file' onchange="shitty(this);"/>
+</div>
+<br><br>
+<div id="simple">
+<div>
+<img id='heck' src="" style='padding-right:25px'></img></div>
+<div>
+<img id='loading' src="" style='padding:50px'></img></div>
+<div>
+<img id='result' src=""></img>
+</div>
+</div>
+</body>
