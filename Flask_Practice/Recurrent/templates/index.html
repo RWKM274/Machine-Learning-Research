@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Generating Text</title>
+	<style>
+		* {
+			font-size: 30px;
+		}
+	</style>
+</head>
+<body>
+	<button id="generator-button">Generate Text</button>
+	<p style="font-weight:bold">Generated Text</p>
+	<p>The Neural Network says: <span id="text-generated"></span></p>
+
+
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+	<script>
+		$("#generator-button").click(function(event){
+		    console.log('working')
+			$.post("/generate_text", JSON.stringify('true'), function(response){
+				$("#text-generated").text(response.prediction);
+				console.log(response);
+
+			});
+		});
+	</script>
+</body>
+</html>
