@@ -12,3 +12,4 @@ def hello():
 		'greeting': 'Hello, ' + name + '!'
 	}
 	return jsonify(response)
+app.run()
