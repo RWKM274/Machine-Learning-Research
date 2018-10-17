@@ -3,4 +3,5 @@
  youtube-dl
  webvtt-py
  google_images_download
+ gym
  flask
